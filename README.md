@@ -8,6 +8,8 @@ Source for a water-utility analytics demo built on synthetic data (Torrens Gulf 
 | `pipeline/` | Lakeflow Spark Declarative Pipeline SQL (bronze/silver/gold) and exported settings | `water_utilities_medallion` (cc41ddf7-64d5-4698-bdfe-78f80eb9591c) |
 | `dashboard/` | AI/BI dashboard export (`.lvdash.json`) | Torrens Gulf Water - Network, Assets & Incidents |
 | `genie/` | Genie Agent exports (Finance, Network Ops, Leak Desk) | 3 Genie Agents |
+| `checks/` | Validation queries: gold vs source reconciliation, leak alert calibration, risk score length bias | 3 saved SQL queries |
+| `docs/REBUILD_GUIDE.md` | Step-by-step guide to rebuild everything in a new workspace | - |
 | `app/water-incident-desk/` | Incident & Report Desk app (APX: React + FastAPI), its bundle (`databricks.yml`), architecture docs, SQL views and agent config (`.agents`, `.claude`, `AGENTS.md`) | `water-incident-desk` app |
 
 ## Notes
