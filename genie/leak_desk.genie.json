@@ -1,0 +1,152 @@
+{
+  "space_id": "01f1e2243f9e155d9fe5206ef08de321",
+  "title": "Leak Desk \u2013 Torrens Gulf Water",
+  "description": "Front-line assistant for leak detection and non-revenue water (NRW) across Torrens Gulf Water's 240 district metered areas (DMAs). Ask which DMAs are leaking now, since when, how much water is being lost, which DMAs are trending up, and which high-risk pipes sit in a leaking DMA. Built on the verified gold layer of the water_utilities_medallion pipeline (synthetic demo data, Jan 2025 \u2013 Nov 2026).",
+  "warehouse_id": "ace3100edf02c9ff",
+  "parent_path": "/Users/labuser+106@awsbricks.com",
+  "etag": "680a1d523bceaa1853164a209cade0d45cd0bd1d4bf78cfab3e8baf6974534a7",
+  "create_time": "2026-11-17T01:14:33.923Z",
+  "update_time": "2026-11-17T01:14:42.200Z",
+  "serialized_space": {
+    "version": 2,
+    "data_sources": {
+      "tables": [
+        {
+          "identifier": "adllabs_096.water_utilities_medallion.gold_dma_nrw_daily",
+          "description": [
+            "One row per DMA per day: inflow, billed volume, non-revenue water (ML and %), minimum night flow vs 28-day baseline and vs the all-DMA peer median, leak_alert flag, main breaks and weather."
+          ]
+        },
+        {
+          "identifier": "adllabs_096.water_utilities_medallion.gold_main_break_risk",
+          "description": [
+            "One row per water main segment with material, install era, soil, break history, cohort break rate and risk_score / risk_tier (High = top 5%, Medium = next 15%, Low = rest)."
+          ]
+        },
+        {
+          "identifier": "adllabs_096.water_utilities_medallion.silver_dim_dma",
+          "description": [
+            "One row per DMA with name, region, suburb, postcode, LGA, pressure zone, connections, dominant soil, supplying treatment plant, distance from plant and mains length."
+          ]
+        }
+      ]
+    },
+    "instructions": {
+      "text_instructions": [
+        {
+          "id": "e6795e76641c49e1810372db108a08c9",
+          "content": [
+            "You are a front-line assistant for leak detection at Torrens Gulf Water (synthetic demo utility, Adelaide and regional South Australia).\n",
+            "\n",
+            "KEY DEFINITIONS\n",
+            "- DMA (district metered area): a sealed zone of the network with one metered inflow. Leak questions are always answered at DMA level.\n",
+            "- Non-revenue water (NRW): water put into a DMA that is not billed. nrw_ml = inflow_ml - billed_ml; nrw_pct is the share of inflow. The network norm is about 7%.\n",
+            "- Minimum night flow (MNF, min_night_flow_kl_per_hour): flow between 2 and 4 AM when little is used; the main physical leak signal. Compare DMAs using mnf_per_1000_conn, not raw MNF.\n",
+            "- A DMA IS LEAKING on a day when leak_alert = true. leak_alert means BOTH mnf_per_1000_conn >= 1.25 x the all-DMA median that day AND nrw_pct >= 1.25 x the all-DMA median nrw_pct that day. Always use leak_alert for 'is it leaking' questions; do not invent other thresholds.\n",
+            "- EARLY WARNING (not a leak yet): nrw_pct_28d_avg >= 1.15 x peer_median_nrw_pct and leak_alert = false. Label this clearly as a watch-list, not a confirmed leak. The alert rule fires roughly 5 weeks after a slow leak starts, so the watch-list helps catch leaks earlier.\n",
+            "\n",
+            "RULES\n",
+            "- 'Now' / 'currently' / 'latest' means relative to MAX(obs_date) in gold_dma_nrw_daily (data ends 2026-11-12), not current_date(). Default window for 'now' is the last 7 days of data.\n",
+            "- Always show dma_name and region_name alongside dma_id.\n",
+            "- For volumes, report megalitres (ML); 1 ML = 1,000 kL.\n",
+            "- mnf_ratio (vs the DMA's own 28-day baseline) is only an onset signal and absorbs slow leaks; do not use it alone to call a leak.\n",
+            "- High-risk pipes in a DMA come from gold_main_break_risk where risk_tier = 'High'; join on dma_id.\n",
+            "- Data is synthetic; say so if the user asks about real customers or locations."
+          ]
+        }
+      ],
+      "example_question_sqls": [
+        {
+          "id": "1133db9d14774efcae7ec6c0b7134867",
+          "question": [
+            "Which high-risk pipes are in DMAs that are currently leaking?"
+          ],
+          "sql": [
+            "WITH latest AS (SELECT MAX(obs_date) AS d FROM adllabs_096.water_utilities_medallion.gold_dma_nrw_daily),\n",
+            "leaking AS (\n",
+            "  SELECT DISTINCT dma_id\n",
+            "  FROM adllabs_096.water_utilities_medallion.gold_dma_nrw_daily, latest\n",
+            "  WHERE obs_date > latest.d - INTERVAL 7 DAYS AND leak_alert)\n",
+            "SELECT r.dma_id, r.dma_name, r.main_id, r.material, r.install_year, r.soil_type, r.length_m,\n",
+            "  r.breaks_total, r.last_break_on, ROUND(r.risk_score, 3) AS risk_score, r.risk_tier\n",
+            "FROM adllabs_096.water_utilities_medallion.gold_main_break_risk r\n",
+            "JOIN leaking l ON r.dma_id = l.dma_id\n",
+            "WHERE r.risk_tier = 'High'\n",
+            "ORDER BY r.risk_score DESC"
+          ]
+        },
+        {
+          "id": "35dd2b4a397341c59af489f4dd709a2b",
+          "question": [
+            "Show the weekly NRW trend for Unley DMA 7 against the network median"
+          ],
+          "sql": [
+            "SELECT CAST(date_trunc('WEEK', obs_date) AS DATE) AS week,\n",
+            "  ROUND(AVG(nrw_pct), 2) AS dma_nrw_pct,\n",
+            "  ROUND(AVG(peer_median_nrw_pct), 2) AS network_median_nrw_pct,\n",
+            "  COUNT_IF(leak_alert) AS alert_days\n",
+            "FROM adllabs_096.water_utilities_medallion.gold_dma_nrw_daily\n",
+            "WHERE dma_name = 'Unley DMA 7'\n",
+            "GROUP BY 1\n",
+            "ORDER BY 1"
+          ]
+        },
+        {
+          "id": "af5056c09d9a4da98d4a96c4bfdcc819",
+          "question": [
+            "Which DMAs are leaking right now?"
+          ],
+          "sql": [
+            "WITH latest AS (SELECT MAX(obs_date) AS d FROM adllabs_096.water_utilities_medallion.gold_dma_nrw_daily)\n",
+            "SELECT dma_id, dma_name, region_name,\n",
+            "  COUNT_IF(leak_alert) AS alert_days_last_7,\n",
+            "  ROUND(AVG(nrw_pct), 2) AS avg_nrw_pct_last_7,\n",
+            "  ROUND(AVG(peer_median_nrw_pct), 2) AS peer_median_nrw_pct,\n",
+            "  ROUND(AVG(mnf_vs_peer_ratio), 2) AS mnf_vs_peer_ratio,\n",
+            "  ROUND(SUM(nrw_ml), 1) AS nrw_ml_last_7\n",
+            "FROM adllabs_096.water_utilities_medallion.gold_dma_nrw_daily, latest\n",
+            "WHERE obs_date > latest.d - INTERVAL 7 DAYS\n",
+            "GROUP BY dma_id, dma_name, region_name\n",
+            "HAVING COUNT_IF(leak_alert) > 0\n",
+            "ORDER BY alert_days_last_7 DESC, avg_nrw_pct_last_7 DESC"
+          ]
+        },
+        {
+          "id": "de2c53d05f714639bf5802fd00542d78",
+          "question": [
+            "Since when has each DMA been leaking and how much water has been lost?"
+          ],
+          "sql": [
+            "SELECT dma_id, dma_name, region_name,\n",
+            "  MIN(obs_date) AS first_alert_date,\n",
+            "  MAX(obs_date) AS last_alert_date,\n",
+            "  COUNT(*) AS alert_days,\n",
+            "  ROUND(SUM(nrw_ml - inflow_ml * peer_median_nrw_pct / 100.0), 1) AS excess_nrw_ml_vs_peer\n",
+            "FROM adllabs_096.water_utilities_medallion.gold_dma_nrw_daily\n",
+            "WHERE leak_alert\n",
+            "GROUP BY dma_id, dma_name, region_name\n",
+            "ORDER BY alert_days DESC"
+          ]
+        },
+        {
+          "id": "e1ac2d41a9f241418bccfe23c50ff6da",
+          "question": [
+            "Which DMAs are on the early-warning watch-list?"
+          ],
+          "sql": [
+            "WITH latest AS (SELECT MAX(obs_date) AS d FROM adllabs_096.water_utilities_medallion.gold_dma_nrw_daily)\n",
+            "SELECT dma_id, dma_name, region_name,\n",
+            "  ROUND(nrw_pct_28d_avg, 2) AS nrw_pct_28d_avg,\n",
+            "  ROUND(peer_median_nrw_pct, 2) AS peer_median_nrw_pct,\n",
+            "  ROUND(nrw_pct_28d_avg / peer_median_nrw_pct, 2) AS ratio_to_peer\n",
+            "FROM adllabs_096.water_utilities_medallion.gold_dma_nrw_daily, latest\n",
+            "WHERE obs_date = latest.d\n",
+            "  AND NOT leak_alert\n",
+            "  AND nrw_pct_28d_avg >= 1.15 * peer_median_nrw_pct\n",
+            "ORDER BY ratio_to_peer DESC"
+          ]
+        }
+      ]
+    }
+  }
+}

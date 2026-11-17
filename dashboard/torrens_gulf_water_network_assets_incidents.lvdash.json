@@ -1,0 +1,2096 @@
+{
+  "datasets": [
+    {
+      "name": "ds_nrw_weekly",
+      "displayName": "ds_nrw_weekly",
+      "queryLines": [
+        "SELECT\n",
+        "  date_trunc('WEEK', obs_date) AS week,\n",
+        "  round(100 * sum(nrw_ml) / sum(inflow_ml), 2) AS network_nrw_pct,\n",
+        "  count_if(leak_alert) AS dma_alert_days\n",
+        "FROM\n",
+        "  adllabs_096.water_utilities_medallion.gold_dma_nrw_daily\n",
+        "GROUP BY\n",
+        "  1\n",
+        "ORDER BY\n",
+        "  1"
+      ]
+    },
+    {
+      "name": "ds_break_cohorts",
+      "displayName": "ds_break_cohorts",
+      "queryLines": [
+        "SELECT\n",
+        "  material,\n",
+        "  install_era,\n",
+        "  count(*) AS segments,\n",
+        "  round(sum(length_m) / 1000, 1) AS km,\n",
+        "  sum(breaks_total) AS breaks,\n",
+        "  round(sum(breaks_total) / (sum(length_m) / 1000.0) / max(years_observed), 2) AS breaks_per_km_yr,\n",
+        "  round(\n",
+        "    100.0 * sum(breaks_on_hot_dry_days) / nullif(sum(breaks_total), 0),\n",
+        "    1\n",
+        "  ) AS pct_on_hot_dry_days\n",
+        "FROM\n",
+        "  adllabs_096.water_utilities_medallion.gold_main_break_risk\n",
+        "GROUP BY\n",
+        "  ALL"
+      ]
+    },
+    {
+      "name": "ds_dma_map",
+      "displayName": "ds_dma_map",
+      "queryLines": [
+        "WITH last_day AS (\n",
+        "  SELECT\n",
+        "    max(obs_date) d\n",
+        "  FROM\n",
+        "    adllabs_096.water_utilities_medallion.gold_dma_nrw_daily\n",
+        ")\n",
+        "SELECT\n",
+        "  n.dma_id,\n",
+        "  n.dma_name,\n",
+        "  n.region_name,\n",
+        "  d.latitude,\n",
+        "  d.longitude,\n",
+        "  d.connections,\n",
+        "  round(avg(n.nrw_pct), 2) AS nrw_pct_90d,\n",
+        "  round(avg(n.mnf_vs_peer_ratio), 3) AS mnf_vs_peer_90d,\n",
+        "  sum(n.main_breaks) AS main_breaks_90d,\n",
+        "  max(\n",
+        "    CASE\n",
+        "      WHEN n.obs_date = l.d THEN n.leak_alert\n",
+        "    END\n",
+        "  ) AS leak_alert_now\n",
+        "FROM\n",
+        "  adllabs_096.water_utilities_medallion.gold_dma_nrw_daily n\n",
+        "    JOIN adllabs_096.water_utilities_medallion.silver_dim_dma d\n",
+        "      ON d.dma_id = n.dma_id\n",
+        "    CROSS JOIN last_day l\n",
+        "WHERE\n",
+        "  n.obs_date > date_sub(l.d, 90)\n",
+        "GROUP BY\n",
+        "  ALL\n",
+        "ORDER BY nrw_pct_90d DESC"
+      ]
+    },
+    {
+      "name": "ds_leak_dma_vs_peer",
+      "displayName": "ds_leak_dma_vs_peer",
+      "queryLines": [
+        "SELECT\n",
+        "  obs_date,\n",
+        "  dma_id,\n",
+        "  nrw_pct,\n",
+        "  peer_median_nrw_pct,\n",
+        "  mnf_vs_peer_ratio_14d,\n",
+        "  leak_alert\n",
+        "FROM\n",
+        "  adllabs_096.water_utilities_medallion.gold_dma_nrw_daily\n",
+        "WHERE\n",
+        "  dma_id IN (\n",
+        "    SELECT DISTINCT\n",
+        "      dma_id\n",
+        "    FROM\n",
+        "      adllabs_096.water_utilities_medallion.gold_dma_nrw_daily\n",
+        "    WHERE\n",
+        "      leak_alert\n",
+        "  )\n",
+        "ORDER BY\n",
+        "  obs_date"
+      ]
+    },
+    {
+      "name": "ds_operations_daily",
+      "displayName": "ds_operations_daily",
+      "queryLines": [
+        "SELECT\n",
+        "  obs_date,\n",
+        "  urban_storage_level_pct,\n",
+        "  bulk_storage_level_pct,\n",
+        "  murray_ml_pumped,\n",
+        "  pumping_cost_aud_per_ml,\n",
+        "  desal_production_ml,\n",
+        "  water_treatment_production_ml,\n",
+        "  recycled_water_supplied_ml,\n",
+        "  avg_rainfall_mm\n",
+        "FROM\n",
+        "  adllabs_096.water_utilities_medallion.gold_operations_daily\n",
+        "ORDER BY\n",
+        "  obs_date"
+      ]
+    },
+    {
+      "name": "ds_high_risk_segments",
+      "displayName": "ds_high_risk_segments",
+      "queryLines": [
+        "SELECT\n",
+        "  main_id,\n",
+        "  dma_name,\n",
+        "  region_name,\n",
+        "  material,\n",
+        "  install_year,\n",
+        "  soil_type,\n",
+        "  diameter_mm,\n",
+        "  length_m,\n",
+        "  breaks_total,\n",
+        "  round(risk_score, 2) AS risk_score_breaks_per_km_yr,\n",
+        "  round(expected_breaks_per_yr, 3) AS expected_breaks_per_yr,\n",
+        "  repair_cost_aud,\n",
+        "  last_break_on,\n",
+        "  latitude,\n",
+        "  longitude\n",
+        "FROM\n",
+        "  adllabs_096.water_utilities_medallion.gold_main_break_risk\n",
+        "WHERE\n",
+        "  risk_tier = 'High'\n",
+        "ORDER BY\n",
+        "  risk_score DESC"
+      ]
+    },
+    {
+      "name": "ds_risk_tiers",
+      "displayName": "ds_risk_tiers",
+      "queryLines": [
+        "SELECT\n",
+        "  risk_tier,\n",
+        "  count(*) AS segments,\n",
+        "  round(sum(breaks_total) / sum(length_m / 1000.0) / max(years_observed), 2) AS breaks_per_km_yr\n",
+        "FROM\n",
+        "  adllabs_096.water_utilities_medallion.gold_main_break_risk\n",
+        "GROUP BY\n",
+        "  risk_tier"
+      ]
+    },
+    {
+      "name": "ds_billing_quarterly",
+      "displayName": "ds_billing_quarterly",
+      "queryLines": [
+        "SELECT\n",
+        "  bill_quarter,\n",
+        "  bill_quarter_label,\n",
+        "  region_name,\n",
+        "  sum(bills) AS bills,\n",
+        "  sum(total_billed_aud) AS total_billed_aud,\n",
+        "  sum(overdue_aud) AS overdue_aud,\n",
+        "  round(sum(overdue_bills) / sum(bills), 4) AS overdue_rate,\n",
+        "  sum(hardship_bills) AS hardship_bills,\n",
+        "  sum(concession_bills) AS concession_bills,\n",
+        "  round(sum(est_meter_unregistered_kl), 0) AS est_meter_unregistered_kl\n",
+        "FROM\n",
+        "  adllabs_096.water_utilities_medallion.gold_customer_billing_quarterly\n",
+        "GROUP BY\n",
+        "  ALL"
+      ]
+    },
+    {
+      "name": "ds_register",
+      "displayName": "ds_register",
+      "queryLines": [
+        "SELECT\n",
+        "  event_type,\n",
+        "  event_id,\n",
+        "  event_date,\n",
+        "  date_trunc('MONTH', event_date) AS event_month,\n",
+        "  title,\n",
+        "  region_name,\n",
+        "  impact_value,\n",
+        "  impact_unit,\n",
+        "  report_on_file,\n",
+        "  regulator,\n",
+        "  suggested_status,\n",
+        "  suggested_reason\n",
+        "FROM\n",
+        "  adllabs_096.default.incident_events\n",
+        "ORDER BY event_date DESC"
+      ]
+    },
+    {
+      "name": "ds_kpis",
+      "displayName": "ds_kpis",
+      "queryLines": [
+        "WITH last_day AS (\n",
+        "  SELECT\n",
+        "    max(obs_date) d\n",
+        "  FROM\n",
+        "    adllabs_096.water_utilities_medallion.gold_dma_nrw_daily\n",
+        ")\n",
+        "SELECT\n",
+        "  (\n",
+        "    SELECT\n",
+        "      count(*)\n",
+        "    FROM\n",
+        "      adllabs_096.water_utilities_medallion.gold_dma_nrw_daily n\n",
+        "        JOIN last_day l\n",
+        "          ON n.obs_date = l.d\n",
+        "    WHERE\n",
+        "      n.leak_alert\n",
+        "  ) AS dmas_on_leak_alert,\n",
+        "  (\n",
+        "    SELECT\n",
+        "      round(100 * sum(nrw_ml) / sum(inflow_ml), 2)\n",
+        "    FROM\n",
+        "      adllabs_096.water_utilities_medallion.gold_dma_nrw_daily n,\n",
+        "      last_day l\n",
+        "    WHERE\n",
+        "      n.obs_date > date_sub(l.d, 28)\n",
+        "  ) AS network_nrw_pct_28d,\n",
+        "  (\n",
+        "    SELECT\n",
+        "      count(*)\n",
+        "    FROM\n",
+        "      adllabs_096.water_utilities_medallion.gold_main_break_risk\n",
+        "    WHERE\n",
+        "      risk_tier = 'High'\n",
+        "  ) AS high_risk_segments,\n",
+        "  (\n",
+        "    SELECT\n",
+        "      round(urban_storage_level_pct, 1)\n",
+        "    FROM\n",
+        "      adllabs_096.water_utilities_medallion.gold_operations_daily\n",
+        "    ORDER BY\n",
+        "      obs_date DESC\n",
+        "    LIMIT 1\n",
+        "  ) AS urban_storage_pct,\n",
+        "  (\n",
+        "    SELECT\n",
+        "      count(*)\n",
+        "    FROM\n",
+        "      adllabs_096.default.incident_events\n",
+        "    WHERE\n",
+        "      suggested_status = 'Open'\n",
+        "  ) AS open_register_events,\n",
+        "  (\n",
+        "    SELECT\n",
+        "      max(obs_date)\n",
+        "    FROM\n",
+        "      adllabs_096.water_utilities_medallion.gold_dma_nrw_daily\n",
+        "  ) AS data_as_of"
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "name": "716ca386",
+      "displayName": "Overview",
+      "layout": [
+        {
+          "widget": {
+            "name": "kpi_leak",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_kpis",
+                  "fields": [
+                    {
+                      "name": "sum(dmas_on_leak_alert)",
+                      "expression": "SUM(`dmas_on_leak_alert`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "DMAs on leak alert"
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(dmas_on_leak_alert)",
+                  "rowNumber": 0
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 2,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_nrw",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_kpis",
+                  "fields": [
+                    {
+                      "name": "sum(network_nrw_pct_28d)",
+                      "expression": "SUM(`network_nrw_pct_28d`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Network NRW %, last 28 days"
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(network_nrw_pct_28d)",
+                  "rowNumber": 0
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 2,
+            "y": 0,
+            "width": 2,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_high_risk",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_kpis",
+                  "fields": [
+                    {
+                      "name": "sum(high_risk_segments)",
+                      "expression": "SUM(`high_risk_segments`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "High-risk main segments"
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(high_risk_segments)",
+                  "rowNumber": 0
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 4,
+            "y": 0,
+            "width": 2,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_storage",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_kpis",
+                  "fields": [
+                    {
+                      "name": "sum(urban_storage_pct)",
+                      "expression": "SUM(`urban_storage_pct`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Urban storage %"
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(urban_storage_pct)",
+                  "rowNumber": 0
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 0,
+            "width": 2,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_open",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_kpis",
+                  "fields": [
+                    {
+                      "name": "sum(open_register_events)",
+                      "expression": "SUM(`open_register_events`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Open register events"
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(open_register_events)",
+                  "rowNumber": 0
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 8,
+            "y": 0,
+            "width": 2,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "nrw_weekly",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_nrw_weekly",
+                  "fields": [
+                    {
+                      "name": "week",
+                      "expression": "`week`"
+                    },
+                    {
+                      "name": "sum(network_nrw_pct)",
+                      "expression": "SUM(`network_nrw_pct`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Weekly network NRW %"
+              },
+              "version": 3,
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "week",
+                  "displayName": "week",
+                  "scale": {
+                    "type": "temporal"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(network_nrw_pct)",
+                  "displayName": "network_nrw_pct",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 3,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "register_monthly",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_register",
+                  "fields": [
+                    {
+                      "name": "event_type",
+                      "expression": "`event_type`"
+                    },
+                    {
+                      "name": "event_month",
+                      "expression": "`event_month`"
+                    },
+                    {
+                      "name": "count(event_id)",
+                      "expression": "COUNT(`event_id`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Register events by month"
+              },
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "event_month",
+                  "displayName": "event_month",
+                  "scale": {
+                    "type": "temporal"
+                  }
+                },
+                "y": {
+                  "fieldName": "count(event_id)",
+                  "displayName": "event_id",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "event_type",
+                  "displayName": "event_type",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 3,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "as_of_note",
+            "queries": [
+              {
+                "name": "text_q_dashboards/01f1e223ead81821a0e3d9cbfdac4631/datasets/01f1e224350714c094992ff8c081cc66",
+                "query": {
+                  "datasetName": "ds_kpis",
+                  "fields": [
+                    {
+                      "name": "as_of",
+                      "expression": "MAX(`data_as_of`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "widgetType": "text",
+              "version": 1,
+              "encodings": {
+                "text": {
+                  "lines": [
+                    "**Data as of {{ field:as_of }}**\n",
+                    "\n",
+                    "Synthetic data for Torrens Gulf Water Corporation. Not real operational figures.\n"
+                  ],
+                  "fields": [
+                    {
+                      "queryName": "text_q_dashboards/01f1e223ead81821a0e3d9cbfdac4631/datasets/01f1e224350714c094992ff8c081cc66",
+                      "fieldName": "as_of",
+                      "format": {
+                        "type": "date",
+                        "date": "locale-long-month"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 10,
+            "y": 0,
+            "width": 2,
+            "height": 3
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    },
+    {
+      "name": "leak_detection",
+      "displayName": "Leak detection",
+      "layout": [
+        {
+          "widget": {
+            "name": "leak_line",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_leak_dma_vs_peer",
+                  "fields": [
+                    {
+                      "name": "obs_date",
+                      "expression": "`obs_date`"
+                    },
+                    {
+                      "name": "avg(nrw_pct)",
+                      "expression": "AVG(`nrw_pct`)"
+                    },
+                    {
+                      "name": "avg(peer_median_nrw_pct)",
+                      "expression": "AVG(`peer_median_nrw_pct`)"
+                    }
+                  ],
+                  "filters": [
+                    {
+                      "expression": "`dma_id` IN ('DMA-ADS-007')"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "DMA-ADS-007 NRW % vs peer median"
+              },
+              "version": 3,
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "obs_date",
+                  "displayName": "Date",
+                  "scale": {
+                    "type": "temporal"
+                  }
+                },
+                "y": {
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "fields": [
+                    {
+                      "fieldName": "avg(nrw_pct)",
+                      "displayName": "DMA-ADS-007 NRW %"
+                    },
+                    {
+                      "fieldName": "avg(peer_median_nrw_pct)",
+                      "displayName": "Peer median NRW %"
+                    }
+                  ]
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 3,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "dma_table",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_dma_map",
+                  "fields": [
+                    {
+                      "name": "dma_id",
+                      "expression": "`dma_id`"
+                    },
+                    {
+                      "name": "dma_name",
+                      "expression": "`dma_name`"
+                    },
+                    {
+                      "name": "region_name",
+                      "expression": "`region_name`"
+                    },
+                    {
+                      "name": "connections",
+                      "expression": "`connections`"
+                    },
+                    {
+                      "name": "nrw_pct_90d",
+                      "expression": "`nrw_pct_90d`"
+                    },
+                    {
+                      "name": "mnf_vs_peer_90d",
+                      "expression": "`mnf_vs_peer_90d`"
+                    },
+                    {
+                      "name": "main_breaks_90d",
+                      "expression": "`main_breaks_90d`"
+                    },
+                    {
+                      "name": "leak_alert_now",
+                      "expression": "`leak_alert_now`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "DMAs by 90-day NRW %"
+              },
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "dma_id"
+                  },
+                  {
+                    "fieldName": "dma_name"
+                  },
+                  {
+                    "fieldName": "region_name"
+                  },
+                  {
+                    "fieldName": "connections"
+                  },
+                  {
+                    "fieldName": "nrw_pct_90d"
+                  },
+                  {
+                    "fieldName": "mnf_vs_peer_90d"
+                  },
+                  {
+                    "fieldName": "main_breaks_90d"
+                  },
+                  {
+                    "fieldName": "leak_alert_now"
+                  }
+                ]
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 10,
+            "width": 12,
+            "height": 8
+          }
+        },
+        {
+          "widget": {
+            "name": "leak_note",
+            "spec": {
+              "widgetType": "text",
+              "version": 1,
+              "encodings": {
+                "text": {
+                  "lines": [
+                    "**How the leak alert works.** A DMA goes on leak alert when both conditions hold:\n",
+                    "\n",
+                    "* its 14-day minimum night flow is at least 6% above the peer median, and\n",
+                    "* its non-revenue water (NRW) is at least 0.75 percentage points above the peer median NRW.\n"
+                  ],
+                  "fields": []
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "dma_map",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_dma_map",
+                  "fields": [
+                    {
+                      "name": "nrw_pct_90d",
+                      "expression": "`nrw_pct_90d`"
+                    },
+                    {
+                      "name": "latitude",
+                      "expression": "`latitude`"
+                    },
+                    {
+                      "name": "longitude",
+                      "expression": "`longitude`"
+                    },
+                    {
+                      "name": "dma_name",
+                      "expression": "`dma_name`"
+                    },
+                    {
+                      "name": "region_name",
+                      "expression": "`region_name`"
+                    },
+                    {
+                      "name": "mnf_vs_peer_90d",
+                      "expression": "`mnf_vs_peer_90d`"
+                    },
+                    {
+                      "name": "leak_alert_now",
+                      "expression": "`leak_alert_now`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "DMAs by 90-day NRW %"
+              },
+              "version": 2,
+              "widgetType": "symbol-map",
+              "encodings": {
+                "coordinates": {
+                  "coordinateType": "longitude-latitude",
+                  "latitude": {
+                    "fieldName": "latitude"
+                  },
+                  "longitude": {
+                    "fieldName": "longitude"
+                  }
+                },
+                "color": {
+                  "fieldName": "nrw_pct_90d",
+                  "displayName": "NRW % (90 days)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "extra": [
+                  {
+                    "fieldName": "dma_name",
+                    "displayName": "DMA"
+                  },
+                  {
+                    "fieldName": "region_name",
+                    "displayName": "Region"
+                  },
+                  {
+                    "fieldName": "mnf_vs_peer_90d",
+                    "displayName": "Night flow vs peer (90 days)"
+                  },
+                  {
+                    "fieldName": "leak_alert_now",
+                    "displayName": "Leak alert now"
+                  }
+                ]
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 3,
+            "width": 6,
+            "height": 7
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    },
+    {
+      "name": "main_break_risk",
+      "displayName": "Main break risk",
+      "layout": [
+        {
+          "widget": {
+            "name": "segment_table",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_high_risk_segments",
+                  "fields": [
+                    {
+                      "name": "main_id",
+                      "expression": "`main_id`"
+                    },
+                    {
+                      "name": "dma_name",
+                      "expression": "`dma_name`"
+                    },
+                    {
+                      "name": "region_name",
+                      "expression": "`region_name`"
+                    },
+                    {
+                      "name": "material",
+                      "expression": "`material`"
+                    },
+                    {
+                      "name": "install_year",
+                      "expression": "`install_year`"
+                    },
+                    {
+                      "name": "soil_type",
+                      "expression": "`soil_type`"
+                    },
+                    {
+                      "name": "diameter_mm",
+                      "expression": "`diameter_mm`"
+                    },
+                    {
+                      "name": "length_m",
+                      "expression": "`length_m`"
+                    },
+                    {
+                      "name": "breaks_total",
+                      "expression": "`breaks_total`"
+                    },
+                    {
+                      "name": "risk_score_breaks_per_km_yr",
+                      "expression": "`risk_score_breaks_per_km_yr`"
+                    },
+                    {
+                      "name": "expected_breaks_per_yr",
+                      "expression": "`expected_breaks_per_yr`"
+                    },
+                    {
+                      "name": "repair_cost_aud",
+                      "expression": "`repair_cost_aud`"
+                    },
+                    {
+                      "name": "last_break_on",
+                      "expression": "`last_break_on`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Top high-risk segments"
+              },
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "main_id"
+                  },
+                  {
+                    "fieldName": "dma_name"
+                  },
+                  {
+                    "fieldName": "region_name"
+                  },
+                  {
+                    "fieldName": "material"
+                  },
+                  {
+                    "fieldName": "install_year"
+                  },
+                  {
+                    "fieldName": "soil_type"
+                  },
+                  {
+                    "fieldName": "diameter_mm"
+                  },
+                  {
+                    "fieldName": "length_m"
+                  },
+                  {
+                    "fieldName": "breaks_total"
+                  },
+                  {
+                    "fieldName": "risk_score_breaks_per_km_yr"
+                  },
+                  {
+                    "fieldName": "expected_breaks_per_yr"
+                  },
+                  {
+                    "fieldName": "repair_cost_aud"
+                  },
+                  {
+                    "fieldName": "last_break_on"
+                  }
+                ]
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 9,
+            "width": 6,
+            "height": 8
+          }
+        },
+        {
+          "widget": {
+            "name": "risk_note",
+            "spec": {
+              "widgetType": "text",
+              "version": 1,
+              "encodings": {
+                "text": {
+                  "lines": [
+                    "**About the risk score.** risk_score is a credibility-weighted break rate (breaks per km per year). Short pipes with few observations are pulled toward their cohort average, so a pipe isn't ranked high just because it is long.\n"
+                  ],
+                  "fields": []
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "tier_bar",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_risk_tiers",
+                  "fields": [
+                    {
+                      "name": "risk_tier",
+                      "expression": "`risk_tier`"
+                    },
+                    {
+                      "name": "sum(breaks_per_km_yr)",
+                      "expression": "SUM(`breaks_per_km_yr`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Break rate by risk tier"
+              },
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "risk_tier",
+                  "displayName": "Risk tier",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "custom-order",
+                      "orderedValues": [
+                        "High",
+                        "Medium",
+                        "Low"
+                      ]
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(breaks_per_km_yr)",
+                  "displayName": "Breaks per km per year",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 2,
+            "width": 4,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "cohort_heatmap",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_break_cohorts",
+                  "fields": [
+                    {
+                      "name": "sum(breaks_per_km_yr)",
+                      "expression": "SUM(`breaks_per_km_yr`)"
+                    },
+                    {
+                      "name": "install_era",
+                      "expression": "`install_era`"
+                    },
+                    {
+                      "name": "material",
+                      "expression": "`material`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "Break rate by material and install era",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "widgetType": "heatmap",
+              "encodings": {
+                "x": {
+                  "fieldName": "install_era",
+                  "displayName": "Install era",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "custom-order",
+                      "orderedValues": [
+                        "pre-1960",
+                        "1960-1979",
+                        "1980-1999",
+                        "2000+"
+                      ]
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "material",
+                  "displayName": "Material",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "color": {
+                  "fieldName": "sum(breaks_per_km_yr)",
+                  "displayName": "Breaks per km per year",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 4,
+            "y": 2,
+            "width": 8,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "segment_map",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_high_risk_segments",
+                  "fields": [
+                    {
+                      "name": "risk_score_breaks_per_km_yr",
+                      "expression": "`risk_score_breaks_per_km_yr`"
+                    },
+                    {
+                      "name": "latitude",
+                      "expression": "`latitude`"
+                    },
+                    {
+                      "name": "longitude",
+                      "expression": "`longitude`"
+                    },
+                    {
+                      "name": "main_id",
+                      "expression": "`main_id`"
+                    },
+                    {
+                      "name": "dma_name",
+                      "expression": "`dma_name`"
+                    },
+                    {
+                      "name": "material",
+                      "expression": "`material`"
+                    },
+                    {
+                      "name": "install_year",
+                      "expression": "`install_year`"
+                    },
+                    {
+                      "name": "breaks_total",
+                      "expression": "`breaks_total`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "High-risk segments map"
+              },
+              "version": 2,
+              "widgetType": "symbol-map",
+              "encodings": {
+                "coordinates": {
+                  "coordinateType": "longitude-latitude",
+                  "latitude": {
+                    "fieldName": "latitude"
+                  },
+                  "longitude": {
+                    "fieldName": "longitude"
+                  }
+                },
+                "color": {
+                  "fieldName": "risk_score_breaks_per_km_yr",
+                  "displayName": "Risk score (breaks per km per year)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "extra": [
+                  {
+                    "fieldName": "main_id",
+                    "displayName": "Main"
+                  },
+                  {
+                    "fieldName": "dma_name",
+                    "displayName": "DMA"
+                  },
+                  {
+                    "fieldName": "material",
+                    "displayName": "Material"
+                  },
+                  {
+                    "fieldName": "install_year",
+                    "displayName": "Install year"
+                  },
+                  {
+                    "fieldName": "breaks_total",
+                    "displayName": "Breaks"
+                  }
+                ]
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 9,
+            "width": 6,
+            "height": 8
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    },
+    {
+      "name": "operations_billing",
+      "displayName": "Operations & billing",
+      "layout": [
+        {
+          "widget": {
+            "name": "billed_bar",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_billing_quarterly",
+                  "fields": [
+                    {
+                      "name": "region_name",
+                      "expression": "`region_name`"
+                    },
+                    {
+                      "name": "bill_quarter_label",
+                      "expression": "`bill_quarter_label`"
+                    },
+                    {
+                      "name": "sum(total_billed_aud)",
+                      "expression": "SUM(`total_billed_aud`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Total billed (AUD) by quarter and region"
+              },
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "bill_quarter_label",
+                  "displayName": "bill_quarter_label",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(total_billed_aud)",
+                  "displayName": "total_billed_aud",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "region_name",
+                  "displayName": "region_name",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 14,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "overdue_line",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_billing_quarterly",
+                  "fields": [
+                    {
+                      "name": "region_name",
+                      "expression": "`region_name`"
+                    },
+                    {
+                      "name": "bill_quarter",
+                      "expression": "`bill_quarter`"
+                    },
+                    {
+                      "name": "avg(overdue_rate)",
+                      "expression": "AVG(`overdue_rate`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Overdue rate by quarter and region"
+              },
+              "version": 3,
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "bill_quarter",
+                  "displayName": "bill_quarter",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "avg(overdue_rate)",
+                  "displayName": "overdue_rate",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "region_name",
+                  "displayName": "region_name",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 14,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "storage_line",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_operations_daily",
+                  "fields": [
+                    {
+                      "name": "obs_date",
+                      "expression": "`obs_date`"
+                    },
+                    {
+                      "name": "avg(urban_storage_level_pct)",
+                      "expression": "AVG(`urban_storage_level_pct`)"
+                    },
+                    {
+                      "name": "avg(bulk_storage_level_pct)",
+                      "expression": "AVG(`bulk_storage_level_pct`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Storage levels"
+              },
+              "version": 3,
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "obs_date",
+                  "displayName": "Date",
+                  "scale": {
+                    "type": "temporal"
+                  }
+                },
+                "y": {
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "fields": [
+                    {
+                      "fieldName": "avg(urban_storage_level_pct)",
+                      "displayName": "Urban storage %"
+                    },
+                    {
+                      "fieldName": "avg(bulk_storage_level_pct)",
+                      "displayName": "Bulk storage %"
+                    }
+                  ]
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "pumping_line",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_operations_daily",
+                  "fields": [
+                    {
+                      "name": "obs_date",
+                      "expression": "`obs_date`"
+                    },
+                    {
+                      "name": "avg(pumping_cost_aud_per_ml)",
+                      "expression": "AVG(`pumping_cost_aud_per_ml`)"
+                    },
+                    {
+                      "name": "sum(murray_ml_pumped)",
+                      "expression": "SUM(`murray_ml_pumped`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Pumping cost and Murray pumping"
+              },
+              "version": 3,
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "obs_date",
+                  "displayName": "Date",
+                  "scale": {
+                    "type": "temporal"
+                  }
+                },
+                "y": {
+                  "primary": {
+                    "scale": {
+                      "type": "quantitative"
+                    },
+                    "fields": [
+                      {
+                        "fieldName": "avg(pumping_cost_aud_per_ml)",
+                        "displayName": "Pumping cost (AUD per ML)"
+                      }
+                    ]
+                  },
+                  "secondary": {
+                    "scale": {
+                      "type": "quantitative"
+                    },
+                    "fields": [
+                      {
+                        "fieldName": "sum(murray_ml_pumped)",
+                        "displayName": "Murray ML pumped"
+                      }
+                    ]
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 0,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "supply_area",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_operations_daily",
+                  "fields": [
+                    {
+                      "name": "obs_date",
+                      "expression": "`obs_date`"
+                    },
+                    {
+                      "name": "sum(water_treatment_production_ml)",
+                      "expression": "SUM(`water_treatment_production_ml`)"
+                    },
+                    {
+                      "name": "sum(desal_production_ml)",
+                      "expression": "SUM(`desal_production_ml`)"
+                    },
+                    {
+                      "name": "sum(recycled_water_supplied_ml)",
+                      "expression": "SUM(`recycled_water_supplied_ml`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Water supply by source"
+              },
+              "version": 3,
+              "mark": {
+                "layout": "stack"
+              },
+              "widgetType": "area",
+              "encodings": {
+                "x": {
+                  "fieldName": "obs_date",
+                  "displayName": "Date",
+                  "scale": {
+                    "type": "temporal"
+                  }
+                },
+                "y": {
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "fields": [
+                    {
+                      "fieldName": "sum(water_treatment_production_ml)",
+                      "displayName": "Water treatment plants"
+                    },
+                    {
+                      "fieldName": "sum(desal_production_ml)",
+                      "displayName": "Desalination"
+                    },
+                    {
+                      "fieldName": "sum(recycled_water_supplied_ml)",
+                      "displayName": "Recycled water"
+                    }
+                  ]
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 7,
+            "width": 12,
+            "height": 7
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    },
+    {
+      "name": "incident_register",
+      "displayName": "Incident register",
+      "layout": [
+        {
+          "widget": {
+            "name": "f_event_type",
+            "queries": [
+              {
+                "name": "dashboards/01f1e223ead81821a0e3d9cbfdac4631/datasets/01f1e22434a91ba8b31e08b76a9df7e6_event_type",
+                "query": {
+                  "datasetName": "ds_register",
+                  "fields": [
+                    {
+                      "name": "event_type",
+                      "expression": "`event_type`"
+                    },
+                    {
+                      "name": "event_type_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": "Event type"
+              },
+              "widgetType": "filter-multi-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "event_type",
+                    "queryName": "dashboards/01f1e223ead81821a0e3d9cbfdac4631/datasets/01f1e22434a91ba8b31e08b76a9df7e6_event_type"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 6,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "f_region",
+            "queries": [
+              {
+                "name": "dashboards/01f1e223ead81821a0e3d9cbfdac4631/datasets/01f1e22434a91ba8b31e08b76a9df7e6_region_name",
+                "query": {
+                  "datasetName": "ds_register",
+                  "fields": [
+                    {
+                      "name": "region_name",
+                      "expression": "`region_name`"
+                    },
+                    {
+                      "name": "region_name_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": "Region"
+              },
+              "widgetType": "filter-multi-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "region_name",
+                    "queryName": "dashboards/01f1e223ead81821a0e3d9cbfdac4631/datasets/01f1e22434a91ba8b31e08b76a9df7e6_region_name"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 0,
+            "width": 6,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "type_status_bar",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_register",
+                  "fields": [
+                    {
+                      "name": "suggested_status",
+                      "expression": "`suggested_status`"
+                    },
+                    {
+                      "name": "event_type",
+                      "expression": "`event_type`"
+                    },
+                    {
+                      "name": "count(event_id)",
+                      "expression": "COUNT(`event_id`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Events by type and suggested status"
+              },
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "event_type",
+                  "displayName": "event_type",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "count(event_id)",
+                  "displayName": "event_id",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "suggested_status",
+                  "displayName": "suggested_status",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 2,
+            "width": 8,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "register_table",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_register",
+                  "fields": [
+                    {
+                      "name": "event_date",
+                      "expression": "`event_date`"
+                    },
+                    {
+                      "name": "event_type",
+                      "expression": "`event_type`"
+                    },
+                    {
+                      "name": "title",
+                      "expression": "`title`"
+                    },
+                    {
+                      "name": "region_name",
+                      "expression": "`region_name`"
+                    },
+                    {
+                      "name": "impact_value",
+                      "expression": "`impact_value`"
+                    },
+                    {
+                      "name": "impact_unit",
+                      "expression": "`impact_unit`"
+                    },
+                    {
+                      "name": "regulator",
+                      "expression": "`regulator`"
+                    },
+                    {
+                      "name": "suggested_status",
+                      "expression": "`suggested_status`"
+                    },
+                    {
+                      "name": "suggested_reason",
+                      "expression": "`suggested_reason`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Incident register"
+              },
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "event_date"
+                  },
+                  {
+                    "fieldName": "event_type"
+                  },
+                  {
+                    "fieldName": "title"
+                  },
+                  {
+                    "fieldName": "region_name"
+                  },
+                  {
+                    "fieldName": "impact_value"
+                  },
+                  {
+                    "fieldName": "impact_unit"
+                  },
+                  {
+                    "fieldName": "regulator"
+                  },
+                  {
+                    "fieldName": "suggested_status"
+                  },
+                  {
+                    "fieldName": "suggested_reason"
+                  }
+                ]
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 9,
+            "width": 12,
+            "height": 9
+          }
+        },
+        {
+          "widget": {
+            "name": "no_report_counter",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_register",
+                  "fields": [
+                    {
+                      "name": "count(event_id)",
+                      "expression": "COUNT(`event_id`)"
+                    }
+                  ],
+                  "filters": [
+                    {
+                      "expression": "`report_on_file` = false"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Events with no report on file"
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "count(event_id)"
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 8,
+            "y": 2,
+            "width": 4,
+            "height": 4
+          }
+        },
+        {
+          "widget": {
+            "name": "status_note",
+            "spec": {
+              "widgetType": "text",
+              "version": 1,
+              "encodings": {
+                "text": {
+                  "lines": [
+                    "**About statuses.** These statuses are suggested from the data. Statuses saved in the Incident Desk app (Lakebase) are not shown here.\n"
+                  ],
+                  "fields": []
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 8,
+            "y": 6,
+            "width": 4,
+            "height": 3
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED"
+    },
+    "applyModeEnabled": false
+  }
+}

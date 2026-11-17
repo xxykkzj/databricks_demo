@@ -1,0 +1,6 @@
+command: ["uvicorn", "water_incident_desk.backend.app:app", "--workers", "2"]
+env:
+  - name: WAREHOUSE_ID
+    valueFrom: sql-warehouse
+  - name: LAKEBASE_ENDPOINT
+    valueFrom: postgres

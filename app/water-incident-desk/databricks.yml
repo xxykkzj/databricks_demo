@@ -1,0 +1,35 @@
+bundle:
+  name: water-incident-desk
+
+sync:
+  include:
+    - .build
+
+artifacts:
+  default:
+    build: apx build
+
+resources:
+  apps:
+    water-incident-desk-app:
+      name: "water-incident-desk"
+      description: "Incident & Report Desk: major water network events, their report PDFs and saved statuses"
+      source_code_path: ./.build
+      resources:
+        - name: sql-warehouse
+          sql_warehouse:
+            id: ace3100edf02c9ff
+            permission: CAN_USE
+        - name: postgres
+          postgres:
+            branch: projects/water-incident-desk/branches/production
+            database: projects/water-incident-desk/branches/production/databases/databricks-postgres
+            permission: CAN_CONNECT_AND_CREATE
+      user_api_scopes:
+        - ai-gateway
+        - genie
+
+targets:
+  dev:
+    mode: development
+    default: true

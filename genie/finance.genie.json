@@ -1,0 +1,1181 @@
+{
+  "space_id": "01f1e2285700157c92b68c4d56bad629",
+  "title": "Finance \u2013 Torrens Gulf Water",
+  "description": "For the Torrens Gulf Water finance team. Ask about billed revenue by quarter, region, tariff and customer type; overdue bills and debt; concession and hardship; main break repair costs; River Murray pumping energy costs; and what leaks and meter under-registration cost. Synthetic demo data: bills 2025-Q1 to 2026-Q3, daily data to 12 Nov 2026.",
+  "warehouse_id": "ace3100edf02c9ff",
+  "parent_path": "/Users/labuser+106@awsbricks.com/projects/water-ask-genie",
+  "etag": "5e15e178c3c583cf14c834d175108e8dcd135daeb624e85c1d0b19ba75e902f7",
+  "create_time": "2026-11-17T01:43:51.140Z",
+  "update_time": "2026-11-17T01:47:42.231Z",
+  "serialized_space": {
+    "version": 2,
+    "config": {
+      "sample_questions": [
+        {
+          "id": "4c114e2265b53afa951b885da2b08847",
+          "question": [
+            "Which regions have the highest overdue rate in the latest settled quarter?"
+          ]
+        },
+        {
+          "id": "74b59ca24eaa2657af7e09e890c50c20",
+          "question": [
+            "How many hardship and concession customers did we bill last quarter?"
+          ]
+        },
+        {
+          "id": "a6d17bc33df7c3b40ef243f942e6861c",
+          "question": [
+            "What has the Unley DMA 7 leak cost us so far?"
+          ]
+        },
+        {
+          "id": "d936d3faca41c6f056a8721c1a18fa82",
+          "question": [
+            "What did we bill each quarter, and how much is overdue?"
+          ]
+        },
+        {
+          "id": "e06dd4a58a3e78bc71fbbabeed09e358",
+          "question": [
+            "What have main break repairs cost us by month?"
+          ]
+        }
+      ]
+    },
+    "data_sources": {
+      "tables": [
+        {
+          "identifier": "adllabs_096.water_utilities_medallion.gold_customer_billing_quarterly",
+          "description": [
+            "Gold, one row per billing quarter, region, tariff and holder type (2025-Q1 to 2026-Q3): bills, kL, charges, payment status counts, overdue debt, concession and hardship, meter accuracy. Owns the billing KPIs."
+          ],
+          "column_configs": [
+            {
+              "column_name": "accounts_billed",
+              "description": [
+                "Distinct accounts billed."
+              ]
+            },
+            {
+              "column_name": "avg_bill_aud",
+              "description": [
+                "total_billed_aud / bills for this row only. Across rows use SUM(total_billed_aud) / SUM(bills)."
+              ]
+            },
+            {
+              "column_name": "avg_billed_kl",
+              "description": [
+                "billed_kl / bills for this row only. Across rows use SUM(billed_kl) / SUM(bills)."
+              ]
+            },
+            {
+              "column_name": "avg_meter_bench_error_pct",
+              "description": [
+                "Average bench-test error of the meters tested in this row, percent; negative means meters under-read. Do not average it across rows."
+              ]
+            },
+            {
+              "column_name": "bill_quarter",
+              "description": [
+                "First day of the calendar billing quarter, for example 2026-07-01 for 2026-Q3."
+              ]
+            },
+            {
+              "column_name": "bill_quarter_label",
+              "description": [
+                "Quarter as text, for example 2026-Q3."
+              ],
+              "synonyms": [
+                "quarter"
+              ],
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "billed_kl",
+              "description": [
+                "Water billed, kilolitres."
+              ]
+            },
+            {
+              "column_name": "bills",
+              "description": [
+                "Bills issued for the quarter in this region, tariff and holder type."
+              ]
+            },
+            {
+              "column_name": "concession_bills",
+              "description": [
+                "Bills to accounts with a concession card (tariff RES-2)."
+              ]
+            },
+            {
+              "column_name": "est_meter_unregistered_kl",
+              "description": [
+                "Estimated water the meters failed to register, kL: billed_kl / (1 + bench_error_pct / 100) - billed_kl over bills with a tested meter. An apparent loss, valued at the usage price per kL."
+              ],
+              "synonyms": [
+                "apparent losses",
+                "meter under-registration"
+              ]
+            },
+            {
+              "column_name": "fixed_charge_aud",
+              "description": [
+                "Fixed supply charges, AUD."
+              ]
+            },
+            {
+              "column_name": "hardship_bills",
+              "description": [
+                "Bills to accounts on the hardship program."
+              ],
+              "synonyms": [
+                "hardship customers",
+                "hardship"
+              ]
+            },
+            {
+              "column_name": "holder_type",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "issued_bills",
+              "description": [
+                "Bills with status issued: not yet due. Every 2026-Q3 bill is still issued."
+              ]
+            },
+            {
+              "column_name": "overdue_aud",
+              "description": [
+                "Total value of the overdue bills, AUD."
+              ],
+              "synonyms": [
+                "overdue debt",
+                "arrears",
+                "debt",
+                "outstanding"
+              ]
+            },
+            {
+              "column_name": "overdue_bills",
+              "description": [
+                "Bills with status overdue: unpaid after the due date."
+              ],
+              "synonyms": [
+                "overdue",
+                "late bills",
+                "arrears count"
+              ]
+            },
+            {
+              "column_name": "overdue_rate",
+              "description": [
+                "overdue_bills / bills for this row only, 0 to 1. Across rows use SUM(overdue_bills) / SUM(bills)."
+              ]
+            },
+            {
+              "column_name": "paid_bills",
+              "description": [
+                "Bills with status paid."
+              ]
+            },
+            {
+              "column_name": "region_name",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "smart_meter_bills",
+              "description": [
+                "Bills for accounts with a smart (daily-read) meter."
+              ]
+            },
+            {
+              "column_name": "tariff_code",
+              "description": [
+                "RES-1 standard residential, RES-2 concession (residential), COM-1 commercial, IND-1 industrial."
+              ],
+              "synonyms": [
+                "tariff",
+                "customer class"
+              ],
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "total_billed_aud",
+              "description": [
+                "Total billed: usage + fixed + wastewater charges, AUD. Billed revenue, not cash received."
+              ],
+              "synonyms": [
+                "revenue",
+                "billed revenue",
+                "billings",
+                "total billed"
+              ]
+            },
+            {
+              "column_name": "usage_charge_aud",
+              "description": [
+                "Usage (volumetric) charges, AUD."
+              ]
+            },
+            {
+              "column_name": "wastewater_charge_aud",
+              "description": [
+                "Wastewater (sewerage) charges, AUD."
+              ]
+            }
+          ]
+        },
+        {
+          "identifier": "adllabs_096.water_utilities_medallion.gold_dma_nrw_daily",
+          "description": [
+            "Gold, one row per DMA per day (1 Jan 2025 to 12 Nov 2026): inflow, billed volume, non-revenue water (NRW), minimum night flow against the DMA's own baseline and against all 240 DMAs, the leak alert, main breaks and weather. Owns the leak alert rule."
+          ],
+          "column_configs": [
+            {
+              "column_name": "dma_name",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "dominant_soil",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "leak_alert",
+              "description": [
+                "THE leak alert. True when a full 14-day window shows mnf_vs_peer_ratio_14d >= 1.06 AND nrw_excess_vs_peer_pp_14d >= 0.75: night flow per 1,000 connections at least 6 percent above the peer median and NRW at least 0.75 points above it, both averaged over 14 days. Use it for every question about whether, where or since when a DMA is leaking."
+              ],
+              "synonyms": [
+                "leaking",
+                "leak",
+                "active leak",
+                "alert",
+                "leak flag"
+              ]
+            },
+            {
+              "column_name": "leak_alert_daily",
+              "description": [
+                "A noisier single-day check, not the leak alert: mnf_per_1000_conn >= 1.25 x the peer median AND nrw_pct >= 1.25 x the peer median on the day. It is often false inside a leak alert, so never use it to say whether a DMA is leaking."
+              ]
+            },
+            {
+              "column_name": "main_breaks",
+              "description": [
+                "Water main breaks recorded in the DMA on the day."
+              ]
+            },
+            {
+              "column_name": "major_main_breaks",
+              "description": [
+                "Major main breaks (300 or more customers affected) in the DMA on the day."
+              ]
+            },
+            {
+              "column_name": "min_night_flow_kl_per_hour",
+              "synonyms": [
+                "night flow",
+                "MNF",
+                "minimum night flow"
+              ]
+            },
+            {
+              "column_name": "mnf_baseline_28d",
+              "description": [
+                "The DMA's own baseline: average min_night_flow_kl_per_hour over the 28 days before this day, kL per hour."
+              ]
+            },
+            {
+              "column_name": "mnf_per_1000_conn",
+              "description": [
+                "Minimum night flow per 1,000 connections, kL per hour. Use it, not raw night flow, to compare DMAs of different size."
+              ],
+              "synonyms": [
+                "night flow per 1000 connections"
+              ]
+            },
+            {
+              "column_name": "mnf_ratio",
+              "description": [
+                "min_night_flow_kl_per_hour divided by mnf_baseline_28d. Above 1 means night flow is up on the DMA's own recent baseline. A slow leak lifts the baseline too, so this only shows onset; it is not the leak alert."
+              ]
+            },
+            {
+              "column_name": "mnf_vs_peer_ratio",
+              "description": [
+                "mnf_per_1000_conn divided by peer_median_mnf_per_1000_conn, on the day."
+              ]
+            },
+            {
+              "column_name": "mnf_vs_peer_ratio_14d",
+              "description": [
+                "Average of mnf_vs_peer_ratio over the 14 days up to and including this day. One of the two leak_alert tests."
+              ]
+            },
+            {
+              "column_name": "nrw_excess_vs_peer_pp",
+              "description": [
+                "nrw_pct minus peer_median_nrw_pct on the day, in percentage points."
+              ]
+            },
+            {
+              "column_name": "nrw_excess_vs_peer_pp_14d",
+              "description": [
+                "Average of nrw_excess_vs_peer_pp over the 14 days up to and including this day. One of the two leak_alert tests."
+              ]
+            },
+            {
+              "column_name": "nrw_ml",
+              "description": [
+                "Non-revenue water on the day in megalitres: inflow_ml minus billed_ml."
+              ],
+              "synonyms": [
+                "water loss",
+                "lost water",
+                "NRW volume",
+                "unbilled water"
+              ]
+            },
+            {
+              "column_name": "nrw_pct",
+              "synonyms": [
+                "NRW %",
+                "water loss percentage",
+                "non-revenue water %"
+              ]
+            },
+            {
+              "column_name": "nrw_pct_28d_avg",
+              "description": [
+                "Average nrw_pct over the 28 days up to and including this day (fewer days before 28 Jan 2025)."
+              ]
+            },
+            {
+              "column_name": "peer_median_mnf_per_1000_conn",
+              "description": [
+                "Median mnf_per_1000_conn across all 240 DMAs on the same day."
+              ]
+            },
+            {
+              "column_name": "peer_median_nrw_pct",
+              "description": [
+                "Median nrw_pct across all 240 DMAs on the same day, about 7 percent."
+              ],
+              "synonyms": [
+                "network median NRW",
+                "peer NRW"
+              ]
+            },
+            {
+              "column_name": "pressure_zone",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "region_name",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            }
+          ]
+        },
+        {
+          "identifier": "adllabs_096.water_utilities_medallion.gold_operations_daily",
+          "description": [
+            "Gold, one row per day for the whole network (1 Jan 2025 to 12 Nov 2026): reservoir and bulk storage levels, River Murray pumping volume, energy and cost, plant production and energy, daily water quality counts and weather."
+          ],
+          "column_configs": [
+            {
+              "column_name": "avg_free_chlorine_mg_l",
+              "description": [
+                "Average free chlorine across the day's samples, mg/L."
+              ]
+            },
+            {
+              "column_name": "avg_rainfall_mm",
+              "description": [
+                "Average rainfall across the six service regions, mm."
+              ]
+            },
+            {
+              "column_name": "bulk_storage_level_pct",
+              "description": [
+                "Level of the bulk storage the utility holds an entitlement in, percent."
+              ]
+            },
+            {
+              "column_name": "chlorine_dose_kg",
+              "description": [
+                "Chlorine dosed at the plants, kg."
+              ]
+            },
+            {
+              "column_name": "desal_production_ml",
+              "description": [
+                "Water produced by the seawater desalination plant, ML."
+              ],
+              "synonyms": [
+                "desal",
+                "desalination"
+              ]
+            },
+            {
+              "column_name": "max_temp_c",
+              "description": [
+                "Highest maximum temperature across the regions, degrees C."
+              ]
+            },
+            {
+              "column_name": "murray_ml_pumped",
+              "description": [
+                "River Murray water pumped by all pump stations, ML."
+              ],
+              "synonyms": [
+                "Murray pumping",
+                "water pumped"
+              ]
+            },
+            {
+              "column_name": "plant_energy_mwh",
+              "description": [
+                "Energy used by all treatment plants, MWh."
+              ]
+            },
+            {
+              "column_name": "pump_stations_running",
+              "description": [
+                "River Murray pump stations that pumped any water on the day (of 8)."
+              ]
+            },
+            {
+              "column_name": "pumping_cost_aud_per_ml",
+              "description": [
+                "Pumping energy cost per ML pumped on the day, AUD. For a period, use SUM(pumping_energy_cost_aud) / SUM(murray_ml_pumped); never average the daily values."
+              ]
+            },
+            {
+              "column_name": "pumping_energy_cost_aud",
+              "description": [
+                "Energy cost of River Murray pumping, AUD."
+              ],
+              "synonyms": [
+                "pumping cost",
+                "pumping energy cost"
+              ]
+            },
+            {
+              "column_name": "pumping_energy_mwh",
+              "description": [
+                "Energy used by River Murray pumping, MWh."
+              ]
+            },
+            {
+              "column_name": "pumping_kwh_per_ml",
+              "description": [
+                "Pumping energy per ML pumped on the day, kWh. For a period, use SUM(pumping_energy_mwh) * 1000 / SUM(murray_ml_pumped)."
+              ]
+            },
+            {
+              "column_name": "recycled_water_supplied_ml",
+              "description": [
+                "Recycled water supplied by the wastewater plants, ML."
+              ]
+            },
+            {
+              "column_name": "storage_evaporation_ml",
+              "description": [
+                "Evaporation from all storages, ML."
+              ]
+            },
+            {
+              "column_name": "storage_inflow_ml",
+              "description": [
+                "Inflow to all storages, ML."
+              ]
+            },
+            {
+              "column_name": "storage_release_ml",
+              "description": [
+                "Releases from all storages, ML."
+              ]
+            },
+            {
+              "column_name": "urban_storage_capacity_ml",
+              "description": [
+                "Total capacity of the urban reservoirs, ML."
+              ]
+            },
+            {
+              "column_name": "urban_storage_level_pct",
+              "description": [
+                "Urban reservoir volume as a percent of capacity."
+              ],
+              "synonyms": [
+                "reservoir level",
+                "storage level",
+                "dam level"
+              ]
+            },
+            {
+              "column_name": "urban_storage_volume_ml",
+              "description": [
+                "Water held in the urban reservoirs, ML."
+              ]
+            },
+            {
+              "column_name": "wastewater_inflow_ml",
+              "description": [
+                "Sewage flowing into the wastewater treatment plants, ML."
+              ]
+            },
+            {
+              "column_name": "water_treatment_production_ml",
+              "description": [
+                "Water produced by the water treatment plants, ML."
+              ]
+            },
+            {
+              "column_name": "wq_below_chlorine_target",
+              "description": [
+                "Samples on the day below the 0.5 mg/L free chlorine target."
+              ]
+            },
+            {
+              "column_name": "wq_e_coli_detections",
+              "description": [
+                "Samples on the day with E. coli detected."
+              ]
+            },
+            {
+              "column_name": "wq_samples",
+              "description": [
+                "Water quality samples taken on the day."
+              ]
+            }
+          ]
+        },
+        {
+          "identifier": "adllabs_096.water_utilities_medallion.silver_dim_dma",
+          "description": [
+            "Silver, one row per district metered area (240): name, suburb, LGA, region, pressure zone, connections, dominant soil, supplying treatment plant and distance from it."
+          ],
+          "column_configs": [
+            {
+              "column_name": "dma_name",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "dominant_soil",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "lga",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "pressure_zone",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "region_name",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "suburb",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "treatment_plant_name",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            }
+          ]
+        },
+        {
+          "identifier": "adllabs_096.water_utilities_medallion.silver_main_breaks",
+          "description": [
+            "Silver, one row per water main break and its work order (17,268, 1 Jan 2025 to 12 Nov 2026), with the failed main's attributes, repair time and repair cost."
+          ],
+          "column_configs": [
+            {
+              "column_name": "customers_affected",
+              "synonyms": [
+                "customers out of water",
+                "customers impacted"
+              ]
+            },
+            {
+              "column_name": "failure_type",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "install_era",
+              "description": [
+                "Install era band of the failed main: pre-1960, 1960-1979, 1980-1999 or 2000+."
+              ],
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "is_major",
+              "synonyms": [
+                "major break",
+                "major"
+              ]
+            },
+            {
+              "column_name": "pipe_age_at_failure_yrs",
+              "description": [
+                "Age of the pipe when it failed, in years."
+              ]
+            },
+            {
+              "column_name": "pipe_material",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "probable_cause",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "repair_cost_aud",
+              "synonyms": [
+                "repair cost",
+                "cost of repairs"
+              ]
+            },
+            {
+              "column_name": "repair_hours",
+              "synonyms": [
+                "time to repair",
+                "repair time"
+              ]
+            },
+            {
+              "column_name": "soil_type",
+              "enable_format_assistance": true,
+              "enable_entity_matching": true
+            },
+            {
+              "column_name": "work_order_id",
+              "synonyms": [
+                "work order",
+                "WO"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "instructions": {
+      "text_instructions": [
+        {
+          "id": "271f7cf102010192cba7df6753cb9c9f",
+          "content": [
+            "## PURPOSE\n",
+            "- Finance agent for Torrens Gulf Water: billed revenue, overdue bills and debt, concession and hardship, main break repair costs, River Murray pumping energy costs, and the cost of lost water.\n",
+            "- Synthetic demo utility; bills run 2025-Q1 to 2026-Q3, daily data to 12 Nov 2026.\n",
+            "\n",
+            "## DISAMBIGUATION\n",
+            "- \"Revenue\" means billed revenue (total_billed_aud), not cash received.\n",
+            "- \"This quarter\" or \"last quarter\" means the latest quarter billed, 2026-Q3.\n",
+            "- Payment questions (paid, overdue, debt, overdue rate) use the latest quarter with paid or overdue bills, 2026-Q2. Every 2026-Q3 bill is still issued (not yet due), so its overdue figures are zero by construction, not good news: say so.\n",
+            "- Dates are relative to the data, never current_date().\n",
+            "\n",
+            "## DATA QUALITY NOTES\n",
+            "- overdue_rate, avg_bill_aud, avg_billed_kl and avg_meter_bench_error_pct are per-row ratios: re-aggregate from the sums, never average them.\n",
+            "- The billing table cannot say how many hardship bills are overdue: hardship and overdue are separate counts.\n",
+            "- About 1 percent of bills in every settled quarter are still issued; count them as unpaid, not overdue.\n",
+            "- Daily cost data for 2026-Q4 is partial (to 12 Nov 2026).\n",
+            "\n",
+            "## CONSTRAINTS\n",
+            "- Value water lost to leaks (real losses) at the River Murray pumping energy cost per ML over the same days; value meter under-registration (apparent losses) at the usage price per kL. Call both estimates; pumping energy is a floor that leaves out treatment and water costs.\n",
+            "\n",
+            "## Instructions you must follow when providing summaries\n",
+            "- Money in AUD, as $k or $m for large sums; state the quarters or dates used.\n",
+            "- Round volumes to 1 decimal place and percentages to 2."
+          ]
+        }
+      ],
+      "example_question_sqls": [
+        {
+          "id": "3fc384324ff6097a272bc29f1ffc00f5",
+          "question": [
+            "What was billed revenue by quarter?"
+          ],
+          "sql": [
+            "SELECT g.bill_quarter_label AS quarter, SUM(g.bills) AS bills,\n",
+            "  ROUND(SUM(g.usage_charge_aud) / 1e6, 2) AS usage_aud_m, ROUND(SUM(g.fixed_charge_aud) / 1e6, 2) AS fixed_aud_m,\n",
+            "  ROUND(SUM(g.wastewater_charge_aud) / 1e6, 2) AS wastewater_aud_m, ROUND(SUM(g.total_billed_aud) / 1e6, 2) AS total_billed_aud_m\n",
+            "FROM adllabs_096.water_utilities_medallion.gold_customer_billing_quarterly g\n",
+            "GROUP BY g.bill_quarter_label\n",
+            "ORDER BY quarter"
+          ]
+        },
+        {
+          "id": "666f1881bcb9590f46ff264303202f8e",
+          "question": [
+            "How did revenue by tariff compare with the same quarter last year?"
+          ],
+          "sql": [
+            "WITH q AS (SELECT (SELECT MAX(s.bill_quarter) FROM adllabs_096.water_utilities_medallion.gold_customer_billing_quarterly s) AS latest)\n",
+            "SELECT g.tariff_code, g.holder_type,\n",
+            "  ROUND(SUM(CASE WHEN g.bill_quarter = q.latest THEN g.total_billed_aud END) / 1e6, 2) AS latest_quarter_aud_m,\n",
+            "  ROUND(SUM(CASE WHEN g.bill_quarter = ADD_MONTHS(q.latest, -12) THEN g.total_billed_aud END) / 1e6, 2) AS year_earlier_aud_m\n",
+            "FROM adllabs_096.water_utilities_medallion.gold_customer_billing_quarterly g CROSS JOIN q\n",
+            "GROUP BY g.tariff_code, g.holder_type\n",
+            "ORDER BY g.tariff_code"
+          ]
+        },
+        {
+          "id": "703423f6ccb3b63f88225132f0181b36",
+          "question": [
+            "How many hardship and concession bills were there by region last quarter?"
+          ],
+          "sql": [
+            "SELECT g.bill_quarter_label AS quarter, g.region_name, SUM(g.bills) AS bills,\n",
+            "  SUM(g.hardship_bills) AS hardship_bills, ROUND(SUM(g.hardship_bills) * 100.0 / SUM(g.bills), 2) AS hardship_pct,\n",
+            "  SUM(g.concession_bills) AS concession_bills, ROUND(SUM(g.concession_bills) * 100.0 / SUM(g.bills), 2) AS concession_pct\n",
+            "FROM adllabs_096.water_utilities_medallion.gold_customer_billing_quarterly g\n",
+            "WHERE g.bill_quarter = (SELECT MAX(s.bill_quarter) FROM adllabs_096.water_utilities_medallion.gold_customer_billing_quarterly s)\n",
+            "GROUP BY g.bill_quarter_label, g.region_name\n",
+            "ORDER BY hardship_pct DESC"
+          ]
+        },
+        {
+          "id": "b070364ef036c71d28c573b4678bd401",
+          "question": [
+            "What has the water lost to leaks cost, valued at the pumping energy cost?"
+          ],
+          "sql": [
+            "SELECT n.dma_id, n.dma_name, MIN(n.obs_date) AS first_alert_day, MAX(n.obs_date) AS last_alert_day, COUNT(*) AS alert_days,\n",
+            "  ROUND(SUM(n.inflow_ml * GREATEST(n.nrw_excess_vs_peer_pp, 0) / 100), 1) AS ml_lost_above_peer,\n",
+            "  ROUND(SUM(o.pumping_energy_cost_aud) / NULLIF(SUM(o.murray_ml_pumped), 0), 2) AS pumping_energy_aud_per_ml,\n",
+            "  ROUND(SUM(n.inflow_ml * GREATEST(n.nrw_excess_vs_peer_pp, 0) / 100) * SUM(o.pumping_energy_cost_aud)\n",
+            "    / NULLIF(SUM(o.murray_ml_pumped), 0), 0) AS est_cost_aud\n",
+            "FROM adllabs_096.water_utilities_medallion.gold_dma_nrw_daily n\n",
+            "JOIN adllabs_096.water_utilities_medallion.gold_operations_daily o ON o.obs_date = n.obs_date\n",
+            "WHERE n.leak_alert\n",
+            "GROUP BY n.dma_id, n.dma_name"
+          ],
+          "usage_guidance": [
+            "Real losses are valued at the River Murray pumping energy cost per ML on the same alert days: an estimate and a floor."
+          ]
+        },
+        {
+          "id": "b5b4797ddb69a615f0600c65feae65d9",
+          "question": [
+            "What did main break repairs cost by month and pipe material?"
+          ],
+          "sql": [
+            "SELECT CAST(DATE_TRUNC('MONTH', b.failed_on) AS DATE) AS month, b.pipe_material, COUNT(*) AS breaks,\n",
+            "  ROUND(SUM(b.repair_cost_aud), 0) AS repair_cost_aud\n",
+            "FROM adllabs_096.water_utilities_medallion.silver_main_breaks b\n",
+            "GROUP BY 1, 2\n",
+            "ORDER BY 1, 4 DESC"
+          ]
+        },
+        {
+          "id": "be8e859deb75dc732becf039037478ff",
+          "question": [
+            "What did River Murray pumping energy cost each quarter?"
+          ],
+          "sql": [
+            "SELECT CONCAT(YEAR(o.obs_date), '-Q', QUARTER(o.obs_date)) AS quarter, ROUND(SUM(o.murray_ml_pumped), 0) AS ml_pumped,\n",
+            "  ROUND(SUM(o.pumping_energy_cost_aud), 0) AS energy_cost_aud,\n",
+            "  ROUND(SUM(o.pumping_energy_cost_aud) / NULLIF(SUM(o.murray_ml_pumped), 0), 2) AS cost_aud_per_ml\n",
+            "FROM adllabs_096.water_utilities_medallion.gold_operations_daily o\n",
+            "GROUP BY 1\n",
+            "ORDER BY 1"
+          ],
+          "usage_guidance": [
+            "2026-Q4 is partial (to 12 Nov 2026). Recompute cost per ML from the sums."
+          ]
+        },
+        {
+          "id": "df1bd86cec8d859145770346e503fd8e",
+          "question": [
+            "What are apparent losses from meter under-registration worth at the usage price, by quarter?"
+          ],
+          "sql": [
+            "SELECT g.bill_quarter_label AS quarter, ROUND(SUM(g.est_meter_unregistered_kl) / 1000, 1) AS ml_unregistered,\n",
+            "  ROUND(SUM(g.usage_charge_aud) / SUM(g.billed_kl), 3) AS usage_price_aud_per_kl,\n",
+            "  ROUND(SUM(g.est_meter_unregistered_kl) * SUM(g.usage_charge_aud) / SUM(g.billed_kl), 0) AS est_value_aud\n",
+            "FROM adllabs_096.water_utilities_medallion.gold_customer_billing_quarterly g\n",
+            "GROUP BY g.bill_quarter_label\n",
+            "ORDER BY quarter"
+          ],
+          "usage_guidance": [
+            "Apparent losses are valued at the usage price per kL: an estimate."
+          ]
+        },
+        {
+          "id": "e9547803663252919229de420ab03be4",
+          "question": [
+            "What is the overdue rate and overdue debt by region in the latest quarter with payment data?"
+          ],
+          "sql": [
+            "SELECT g.bill_quarter_label AS quarter, g.region_name, SUM(g.bills) AS bills, SUM(g.overdue_bills) AS overdue_bills,\n",
+            "  ROUND(SUM(g.overdue_bills) * 100.0 / SUM(g.bills), 2) AS overdue_rate_pct, ROUND(SUM(g.overdue_aud), 0) AS overdue_aud\n",
+            "FROM adllabs_096.water_utilities_medallion.gold_customer_billing_quarterly g\n",
+            "WHERE g.bill_quarter = (SELECT MAX(s.bill_quarter) FROM adllabs_096.water_utilities_medallion.gold_customer_billing_quarterly s WHERE s.paid_bills + s.overdue_bills > 0)\n",
+            "GROUP BY g.bill_quarter_label, g.region_name\n",
+            "ORDER BY overdue_rate_pct DESC"
+          ],
+          "usage_guidance": [
+            "Payment questions use the latest quarter with paid or overdue bills (2026-Q2); every 2026-Q3 bill is still issued."
+          ]
+        }
+      ],
+      "join_specs": [
+        {
+          "id": "4a2ef5d767fff7a71faa14fb90be159b",
+          "left": {
+            "identifier": "adllabs_096.water_utilities_medallion.gold_dma_nrw_daily",
+            "alias": "gold_dma_nrw_daily"
+          },
+          "right": {
+            "identifier": "adllabs_096.water_utilities_medallion.silver_dim_dma",
+            "alias": "silver_dim_dma"
+          },
+          "sql": [
+            "`gold_dma_nrw_daily`.`dma_id` = `silver_dim_dma`.`dma_id`",
+            "--rt=FROM_RELATIONSHIP_TYPE_MANY_TO_ONE--"
+          ]
+        },
+        {
+          "id": "baf5318b8df1751662408a4fd80cebc8",
+          "left": {
+            "identifier": "adllabs_096.water_utilities_medallion.silver_main_breaks",
+            "alias": "silver_main_breaks"
+          },
+          "right": {
+            "identifier": "adllabs_096.water_utilities_medallion.silver_dim_dma",
+            "alias": "silver_dim_dma"
+          },
+          "sql": [
+            "`silver_main_breaks`.`dma_id` = `silver_dim_dma`.`dma_id`",
+            "--rt=FROM_RELATIONSHIP_TYPE_MANY_TO_ONE--"
+          ]
+        },
+        {
+          "id": "cfccb87b7167e192be7918d9267b0733",
+          "left": {
+            "identifier": "adllabs_096.water_utilities_medallion.gold_dma_nrw_daily",
+            "alias": "gold_dma_nrw_daily"
+          },
+          "right": {
+            "identifier": "adllabs_096.water_utilities_medallion.gold_operations_daily",
+            "alias": "gold_operations_daily"
+          },
+          "sql": [
+            "`gold_dma_nrw_daily`.`obs_date` = `gold_operations_daily`.`obs_date`",
+            "--rt=FROM_RELATIONSHIP_TYPE_MANY_TO_ONE--"
+          ]
+        }
+      ],
+      "sql_snippets": {
+        "filters": [
+          {
+            "id": "60ca0dfc67fcc36dbb76cc434c6a9919",
+            "sql": [
+              "gold_customer_billing_quarterly.bill_quarter = (SELECT MAX(s.bill_quarter) FROM adllabs_096.water_utilities_medallion.gold_customer_billing_quarterly s WHERE s.paid_bills + s.overdue_bills > 0)"
+            ],
+            "display_name": "Latest settled quarter",
+            "synonyms": [
+              "latest quarter with payments",
+              "last settled quarter"
+            ]
+          },
+          {
+            "id": "65ff5484a22bafd1be582a856de87a39",
+            "sql": [
+              "gold_customer_billing_quarterly.bill_quarter = (SELECT MAX(s.bill_quarter) FROM adllabs_096.water_utilities_medallion.gold_customer_billing_quarterly s)"
+            ],
+            "display_name": "Latest billed quarter",
+            "synonyms": [
+              "this quarter",
+              "last quarter",
+              "latest quarter"
+            ]
+          },
+          {
+            "id": "dfd730563364c4859f0affc941855aaa",
+            "sql": [
+              "gold_customer_billing_quarterly.tariff_code IN ('RES-1', 'RES-2')"
+            ],
+            "display_name": "Residential",
+            "synonyms": [
+              "households",
+              "residential customers"
+            ]
+          }
+        ],
+        "measures": [
+          {
+            "id": "1ce98439cadaa4c0ec31c33b0d67998a",
+            "alias": "overdue_rate_pct",
+            "sql": [
+              "SUM(gold_customer_billing_quarterly.overdue_bills) * 100.0 / SUM(gold_customer_billing_quarterly.bills)"
+            ],
+            "display_name": "Overdue rate %",
+            "synonyms": [
+              "overdue rate",
+              "arrears rate",
+              "late payment rate"
+            ]
+          },
+          {
+            "id": "212540f581477c1746c5629bf19f239b",
+            "alias": "hardship_share_pct",
+            "sql": [
+              "SUM(gold_customer_billing_quarterly.hardship_bills) * 100.0 / SUM(gold_customer_billing_quarterly.bills)"
+            ],
+            "display_name": "Hardship share of bills %",
+            "synonyms": [
+              "hardship rate",
+              "share of hardship customers"
+            ]
+          },
+          {
+            "id": "25e05b97b63a632025aae9469be3f4f7",
+            "alias": "repair_cost_aud",
+            "sql": [
+              "SUM(silver_main_breaks.repair_cost_aud)"
+            ],
+            "display_name": "Repair cost (AUD)",
+            "synonyms": [
+              "repair spend",
+              "cost of breaks"
+            ]
+          },
+          {
+            "id": "3f351f4a49173aa53cd96a874c8d48b6",
+            "alias": "overdue_debt_aud",
+            "sql": [
+              "SUM(gold_customer_billing_quarterly.overdue_aud)"
+            ],
+            "display_name": "Overdue debt (AUD)",
+            "synonyms": [
+              "overdue debt",
+              "arrears",
+              "outstanding debt"
+            ]
+          },
+          {
+            "id": "9f238125522eaa06b2939bf655c9182c",
+            "alias": "usage_price_aud_per_kl",
+            "sql": [
+              "SUM(gold_customer_billing_quarterly.usage_charge_aud) / SUM(gold_customer_billing_quarterly.billed_kl)"
+            ],
+            "display_name": "Usage price per kL (AUD)",
+            "synonyms": [
+              "usage price",
+              "price per kL",
+              "retail price of water"
+            ]
+          },
+          {
+            "id": "c9d9fdc6760b997f5ca0499f9f6080ea",
+            "alias": "avg_bill_aud_period",
+            "sql": [
+              "SUM(gold_customer_billing_quarterly.total_billed_aud) / SUM(gold_customer_billing_quarterly.bills)"
+            ],
+            "display_name": "Average bill (AUD)",
+            "synonyms": [
+              "average bill",
+              "mean bill"
+            ]
+          },
+          {
+            "id": "d28875996f5d1547600e38da9b815d2b",
+            "alias": "billed_revenue_aud",
+            "sql": [
+              "SUM(gold_customer_billing_quarterly.total_billed_aud)"
+            ],
+            "display_name": "Billed revenue (AUD)",
+            "synonyms": [
+              "revenue",
+              "billings",
+              "total billed"
+            ]
+          },
+          {
+            "id": "d3ada3490108ec4e9d620ecb805c1482",
+            "alias": "pumping_cost_aud_per_ml_period",
+            "sql": [
+              "SUM(gold_operations_daily.pumping_energy_cost_aud) / SUM(gold_operations_daily.murray_ml_pumped)"
+            ],
+            "display_name": "Pumping energy cost per ML over a period",
+            "synonyms": [
+              "pumping cost per ML",
+              "supply cost per ML"
+            ]
+          }
+        ]
+      }
+    },
+    "benchmarks": {
+      "questions": [
+        {
+          "id": "eec5b356059c8490a225cf5aaeb51368",
+          "question": [
+            "How much did we bill in total in 2026-Q3?"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT ROUND(SUM(g.total_billed_aud), 0) AS billed_aud FROM adllabs_096.water_utilities_medallion.gold_customer_billing_quarterly g WHERE g.bill_quarter_label = '2026-Q3'"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "d7ad2882332c74e9c7be909814a367c6",
+          "question": [
+            "What did main break repairs cost in 2025?"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT ROUND(SUM(b.repair_cost_aud), 0) AS repair_cost_aud FROM adllabs_096.water_utilities_medallion.silver_main_breaks b WHERE YEAR(b.failed_on) = 2025"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "c391febf249530acfd97653304cdcfc5",
+          "question": [
+            "How did total billing in 2026-Q3 compare with 2025-Q3?"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT g.bill_quarter_label, ROUND(SUM(g.total_billed_aud), 0) AS billed_aud FROM adllabs_096.water_utilities_medallion.gold_customer_billing_quarterly g WHERE g.bill_quarter_label IN ('2025-Q3', '2026-Q3') GROUP BY g.bill_quarter_label ORDER BY 1"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "b71cdd961814ccc38d37c77a6b88a46f",
+          "question": [
+            "What did River Murray pumping energy cost in 2025?"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT ROUND(SUM(o.pumping_energy_cost_aud), 0) AS energy_cost_aud FROM adllabs_096.water_utilities_medallion.gold_operations_daily o WHERE YEAR(o.obs_date) = 2025"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "900f0b98d0becb7dda0b8fe4a231cd73",
+          "question": [
+            "What was our overdue rate last quarter?"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT g.bill_quarter_label, ROUND(SUM(g.overdue_bills) * 100.0 / SUM(g.bills), 2) AS overdue_rate_pct FROM adllabs_096.water_utilities_medallion.gold_customer_billing_quarterly g WHERE g.bill_quarter = (SELECT MAX(s.bill_quarter) FROM adllabs_096.water_utilities_medallion.gold_customer_billing_quarterly s WHERE s.paid_bills + s.overdue_bills > 0) GROUP BY g.bill_quarter_label"
+              ]
+            }
+          ],
+          "evaluation_note": [
+            "Must answer for 2026-Q2 (the latest quarter with payment status) and say 2026-Q3 bills are not yet due. Reject an answer of 0 percent for 2026-Q3."
+          ]
+        },
+        {
+          "id": "832321d85ea15cc3598ddb8387394c76",
+          "question": [
+            "What has the Unley DMA 7 leak cost in pumping energy so far?"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT ROUND(SUM(n.inflow_ml * GREATEST(n.nrw_excess_vs_peer_pp, 0) / 100) * SUM(o.pumping_energy_cost_aud) / SUM(o.murray_ml_pumped), 0) AS est_cost_aud FROM adllabs_096.water_utilities_medallion.gold_dma_nrw_daily n JOIN adllabs_096.water_utilities_medallion.gold_operations_daily o ON o.obs_date = n.obs_date WHERE n.dma_id = 'DMA-ADS-007' AND n.leak_alert"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "7a29b9c61dec804b9da38044143d0dae",
+          "question": [
+            "Which region billed the most in 2026-Q3?"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT g.region_name, ROUND(SUM(g.total_billed_aud), 0) AS billed_aud FROM adllabs_096.water_utilities_medallion.gold_customer_billing_quarterly g WHERE g.bill_quarter_label = '2026-Q3' GROUP BY g.region_name ORDER BY 2 DESC LIMIT 1"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6ebaba03ba8db0b3f55803d805047b20",
+          "question": [
+            "What is the average standard residential (RES-1) bill in 2026-Q3?"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT ROUND(SUM(g.total_billed_aud) / SUM(g.bills), 2) AS avg_bill_aud FROM adllabs_096.water_utilities_medallion.gold_customer_billing_quarterly g WHERE g.bill_quarter_label = '2026-Q3' AND g.tariff_code = 'RES-1'"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "20844517aab5a53f9a1e5225cb669a5f",
+          "question": [
+            "What share of 2026-Q2 bills went to hardship customers?"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT ROUND(SUM(g.hardship_bills) * 100.0 / SUM(g.bills), 2) AS hardship_pct FROM adllabs_096.water_utilities_medallion.gold_customer_billing_quarterly g WHERE g.bill_quarter_label = '2026-Q2'"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "1a99c19f33fa6b86dcbf38a30d688329",
+          "question": [
+            "How much was overdue on 2026-Q2 bills?"
+          ],
+          "answer": [
+            {
+              "format": "SQL",
+              "content": [
+                "SELECT ROUND(SUM(g.overdue_aud), 0) AS overdue_aud FROM adllabs_096.water_utilities_medallion.gold_customer_billing_quarterly g WHERE g.bill_quarter_label = '2026-Q2'"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

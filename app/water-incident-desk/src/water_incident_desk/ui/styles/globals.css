@@ -1,0 +1,166 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Incident & Report Desk. Scene: an operations or compliance officer at a desk,
+ * in daylight, reading reports beside records. Light by default; dark is tuned,
+ * not flipped. Neutrals are tinted towards the deep ink-teal of the workshop roles.
+ */
+:root {
+  --background: #f6f8f8; /* page plane */
+  --foreground: #0b2026;
+  --card: #ffffff; /* panels, list, charts */
+  --card-foreground: #0b2026;
+  --popover: #ffffff;
+  --popover-foreground: #0b2026;
+  --primary: #0b2026;
+  --primary-foreground: #ffffff;
+  --secondary: #eaeff0;
+  --secondary-foreground: #0b2026;
+  --muted: #eef2f3;
+  --muted-foreground: #4a5a60;
+  --accent: #e4ecee; /* hover and selection wash */
+  --accent-foreground: #0b2026;
+  --destructive: #b3261e;
+  --destructive-foreground: #ffffff;
+  --success: #1b6e3a;
+  --border: #d6dee0; /* hairline dividers */
+  --input: #7c8b91; /* control outlines, 3:1 on white */
+  --ring: #1f5fd6;
+  --selection: #cfe0fb;
+  --radius: 0.5rem;
+
+  /* chart chrome */
+  --chart-surface: #ffffff;
+  --chart-grid: #e3e8e9;
+  --chart-axis: #b9c4c7;
+  --chart-muted: #66767c;
+
+  /* categorical, fixed order: one hue per event type (validated, light) */
+  --series-1: #2a78d6; /* major breaks */
+  --series-2: #eb6834; /* storm overflows */
+  --series-3: #1baf7a; /* low chlorine */
+  --series-4: #eda100; /* leak alerts */
+
+  /* workflow status: always shown with an icon and a label */
+  --status-open: #b45a00;
+  --status-review: #1f5fd6;
+  --status-actioned: #6d4bc4;
+  --status-closed: #1b6e3a;
+}
+
+.dark {
+  --background: #0b1417;
+  --foreground: #e4ebed;
+  --card: #111d21;
+  --card-foreground: #e4ebed;
+  --popover: #13222a;
+  --popover-foreground: #e4ebed;
+  --primary: #e4ebed;
+  --primary-foreground: #0b2026;
+  --secondary: #1a2a30;
+  --secondary-foreground: #e4ebed;
+  --muted: #16252a;
+  --muted-foreground: #a6b4b9;
+  --accent: #1c2e34;
+  --accent-foreground: #e4ebed;
+  --destructive: #f2867d;
+  --destructive-foreground: #0b2026;
+  --success: #57c27f;
+  --border: #22343a;
+  --input: #6b7f86;
+  --ring: #77a6f7;
+  --selection: #234a7a;
+
+  --chart-surface: #111d21;
+  --chart-grid: #1f3036;
+  --chart-axis: #3a4f56;
+  --chart-muted: #8fa0a6;
+
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-4: #c98500;
+
+  --status-open: #f0a04b;
+  --status-review: #77a6f7;
+  --status-actioned: #b39cf2;
+  --status-closed: #57c27f;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-series-1: var(--series-1);
+  --color-series-2: var(--series-2);
+  --color-series-3: var(--series-3);
+  --color-series-4: var(--series-4);
+  --color-status-open: var(--status-open);
+  --color-status-review: var(--status-review);
+  --color-status-actioned: var(--status-actioned);
+  --color-status-closed: var(--status-closed);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    color-scheme: light;
+    scrollbar-color: var(--input) transparent;
+    scrollbar-width: thin;
+  }
+  html.dark {
+    color-scheme: dark;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-size: 14px;
+    line-height: 1.45;
+  }
+  ::selection {
+    background: var(--selection);
+    color: var(--foreground);
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  input,
+  textarea {
+    caret-color: var(--ring);
+  }
+  a {
+    text-underline-offset: 3px;
+  }
+  table,
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}

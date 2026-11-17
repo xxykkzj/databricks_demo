@@ -1,0 +1,1144 @@
+{
+  "assumptions": [],
+  "attendee": "labuser+106@awsbricks.com",
+  "brief_revision": 10,
+  "decisions": [
+    {
+      "at": "2026-11-17T00:49:06Z",
+      "by": "attendee",
+      "text": "D8 overflows grouped by storm day and wastewater catchment (439 -> 53 events)"
+    },
+    {
+      "at": "2026-11-17T00:49:06Z",
+      "by": "attendee",
+      "text": "D10 unify definitions: one concept, one object; this design wins where they disagree"
+    },
+    {
+      "at": "2026-11-17T00:49:06Z",
+      "by": "attendee",
+      "text": "D12 Genie Code reviews docs/de-report.md and comments the gold columns"
+    },
+    {
+      "at": "2026-11-17T00:49:06Z",
+      "by": "agent",
+      "text": "D9 read leak alerts and pipe risk from gold (attendee delegated the choice; quality checked first)"
+    },
+    {
+      "at": "2026-11-17T00:49:06Z",
+      "by": "agent",
+      "text": "D11 Lakebase idle suspend stays 24h for the workshop"
+    },
+    {
+      "at": "2026-11-17T01:01:48Z",
+      "by": "attendee",
+      "text": "D13 retire Genie Code; a Claude Code gold subagent takes the gold lane (comments only, logic unchanged)"
+    },
+    {
+      "at": "2026-11-17T01:24:54Z",
+      "by": "attendee",
+      "text": "Build two Genie Agents, Network Ops (technicians) and Finance, on shared gold and desk definitions"
+    },
+    {
+      "at": "2026-11-17T01:24:54Z",
+      "by": "attendee",
+      "text": "Leave Genie One's Leak Desk untouched as the head-to-head baseline"
+    },
+    {
+      "at": "2026-11-17T01:33:11Z",
+      "by": "attendee",
+      "text": "Finance values leaks (real losses) at River Murray pumping energy cost per ML, and meter under-registration (apparent losses) at the retail usage price"
+    }
+  ],
+  "direction": null,
+  "evidence": {
+    "build": {
+      "build": "deployed",
+      "preview": "https://water-incident-desk-7474647348149750.aws.databricksapps.com"
+    },
+    "inspect": {
+      "artifacts": [
+        {
+          "action": null,
+          "bytes": 77683,
+          "captured_at": "2026-11-17T01:07:17Z",
+          "controls": 11,
+          "kind": "screenshot",
+          "label": "initial",
+          "path": ".workshop/evidence/20261117T010705Z-local-desktop-initial.png",
+          "revision": {
+            "commit": "87f8fc3ac186885ac54a407b46ba5814e39fc708",
+            "dirty": "021229ddc8e4d1a0"
+          },
+          "scope": "local",
+          "sha256": "af96729b6aa20b3c75d02068b12f72c34c1e14c20d1da2350280923d7d55fd0d",
+          "text_chars": 1323,
+          "title": "water-incident-desk | Created via apx",
+          "unlabelled_controls": 0,
+          "url": "http://localhost:9001/",
+          "viewport": "desktop"
+        },
+        {
+          "action": null,
+          "bytes": 77797,
+          "captured_at": "2026-11-17T01:08:00Z",
+          "controls": 11,
+          "kind": "screenshot",
+          "label": "initial",
+          "path": ".workshop/evidence/20261117T010747Z-local-desktop-initial.png",
+          "revision": {
+            "commit": "87f8fc3ac186885ac54a407b46ba5814e39fc708",
+            "dirty": "021229ddc8e4d1a0"
+          },
+          "scope": "local",
+          "sha256": "af830046751bcc0f4ed918f8fecb201eb5f8b633db020d0529b123c02498c352",
+          "text_chars": 1323,
+          "title": "water-incident-desk | Created via apx",
+          "unlabelled_controls": 0,
+          "url": "http://localhost:9001/",
+          "viewport": "desktop"
+        },
+        {
+          "action": null,
+          "bytes": 9677,
+          "captured_at": "2026-11-17T01:08:37Z",
+          "controls": 1,
+          "kind": "screenshot",
+          "label": "initial",
+          "path": ".workshop/evidence/20261117T010825Z-local-desktop-initial.png",
+          "revision": {
+            "commit": "87f8fc3ac186885ac54a407b46ba5814e39fc708",
+            "dirty": "021229ddc8e4d1a0"
+          },
+          "scope": "local",
+          "sha256": "338d1db4b3a65853db0fa4d9c6874ad72b73605d5aa0a764728ae70c797b8394",
+          "text_chars": 76,
+          "title": "water-incident-desk | Created via apx",
+          "unlabelled_controls": 0,
+          "url": "http://localhost:9001/events?t=overflow_storm&id=WWTP-GLE%3A2025-09-27",
+          "viewport": "desktop"
+        },
+        {
+          "action": null,
+          "bytes": 9677,
+          "captured_at": "2026-11-17T01:09:07Z",
+          "controls": 1,
+          "kind": "screenshot",
+          "label": "initial",
+          "path": ".workshop/evidence/20261117T010856Z-local-desktop-initial.png",
+          "revision": {
+            "commit": "87f8fc3ac186885ac54a407b46ba5814e39fc708",
+            "dirty": "021229ddc8e4d1a0"
+          },
+          "scope": "local",
+          "sha256": "338d1db4b3a65853db0fa4d9c6874ad72b73605d5aa0a764728ae70c797b8394",
+          "text_chars": 76,
+          "title": "water-incident-desk | Created via apx",
+          "unlabelled_controls": 0,
+          "url": "http://localhost:9001/events?t=overflow_storm&id=WWTP-GLE%3A2025-09-27",
+          "viewport": "desktop"
+        },
+        {
+          "action": null,
+          "bytes": 9677,
+          "captured_at": "2026-11-17T01:09:57Z",
+          "controls": 1,
+          "kind": "screenshot",
+          "label": "initial",
+          "path": ".workshop/evidence/20261117T010943Z-local-desktop-initial.png",
+          "revision": {
+            "commit": "87f8fc3ac186885ac54a407b46ba5814e39fc708",
+            "dirty": "021229ddc8e4d1a0"
+          },
+          "scope": "local",
+          "sha256": "338d1db4b3a65853db0fa4d9c6874ad72b73605d5aa0a764728ae70c797b8394",
+          "text_chars": 76,
+          "title": "water-incident-desk | Created via apx",
+          "unlabelled_controls": 0,
+          "url": "http://localhost:9001/events?t=overflow_storm&id=WWTP-GLE%3A2025-09-27",
+          "viewport": "desktop"
+        },
+        {
+          "action": null,
+          "bytes": 9677,
+          "captured_at": "2026-11-17T01:10:09Z",
+          "controls": 1,
+          "kind": "screenshot",
+          "label": "initial",
+          "path": ".workshop/evidence/20261117T010958Z-local-desktop-initial.png",
+          "revision": {
+            "commit": "87f8fc3ac186885ac54a407b46ba5814e39fc708",
+            "dirty": "021229ddc8e4d1a0"
+          },
+          "scope": "local",
+          "sha256": "338d1db4b3a65853db0fa4d9c6874ad72b73605d5aa0a764728ae70c797b8394",
+          "text_chars": 76,
+          "title": "water-incident-desk | Created via apx",
+          "unlabelled_controls": 0,
+          "url": "http://localhost:9001/events?t=low_chlorine&id=DMA-EYY-003%3Asummer-2025-26",
+          "viewport": "desktop"
+        },
+        {
+          "action": null,
+          "bytes": 182438,
+          "captured_at": "2026-11-17T01:11:38Z",
+          "controls": 29,
+          "kind": "screenshot",
+          "label": "initial",
+          "path": ".workshop/evidence/20261117T011127Z-local-desktop-initial.png",
+          "revision": {
+            "commit": "87f8fc3ac186885ac54a407b46ba5814e39fc708",
+            "dirty": "021229ddc8e4d1a0"
+          },
+          "scope": "local",
+          "sha256": "5cba392006374679348e74e708c9889206741f8f9e040669fad30796907b5d07",
+          "text_chars": 35905,
+          "title": "water-incident-desk | Created via apx",
+          "unlabelled_controls": 0,
+          "url": "http://localhost:8101/events?t=overflow_storm&id=WWTP-GLE%3A2025-09-27",
+          "viewport": "desktop"
+        },
+        {
+          "action": null,
+          "bytes": 132424,
+          "captured_at": "2026-11-17T01:12:26Z",
+          "controls": 67,
+          "kind": "screenshot",
+          "label": "initial",
+          "path": ".workshop/evidence/20261117T011215Z-local-desktop-initial.png",
+          "revision": {
+            "commit": "87f8fc3ac186885ac54a407b46ba5814e39fc708",
+            "dirty": "021229ddc8e4d1a0"
+          },
+          "scope": "local",
+          "sha256": "f7801cf0980c8a3c3f53a0c601dae30a5bd749c70de9cb1a4ff08a1921ff40b7",
+          "text_chars": 5629,
+          "title": "water-incident-desk | Created via apx",
+          "unlabelled_controls": 0,
+          "url": "http://localhost:8101/documents?path=%2FVolumes%2Fworkshop_demo%2Fwater_utilities%2Fraw%2Fdocuments%2Fsewer_overflow_report%2Fovf_0001.pdf",
+          "viewport": "desktop"
+        },
+        {
+          "action": null,
+          "bytes": 183218,
+          "captured_at": "2026-11-17T01:15:07Z",
+          "controls": 20,
+          "kind": "screenshot",
+          "label": "initial",
+          "path": ".workshop/evidence/20261117T011456Z-local-desktop-initial.png",
+          "revision": {
+            "commit": "87f8fc3ac186885ac54a407b46ba5814e39fc708",
+            "dirty": "9d5552580f6735e1"
+          },
+          "scope": "local",
+          "sha256": "2bf23d022cf3fd534c5aadd030e0cb0815879cf10f1f1373d1241950a38e4edc",
+          "text_chars": 28464,
+          "title": "water-incident-desk | Created via apx",
+          "unlabelled_controls": 0,
+          "url": "http://localhost:8101/events?t=low_chlorine&id=DMA-EYY-003%3Asummer-2025-26",
+          "viewport": "desktop"
+        },
+        {
+          "action": null,
+          "bytes": 77785,
+          "captured_at": "2026-11-17T01:18:55Z",
+          "controls": 11,
+          "kind": "screenshot",
+          "label": "initial",
+          "path": ".workshop/evidence/20261117T011850Z-deployed-desktop-initial.png",
+          "revision": {
+            "commit": "34204fe5e318c2996b2387a0eb87a1c490b87de9",
+            "dirty": "3113812c8c4c1876"
+          },
+          "scope": "deployed",
+          "sha256": "3ef782ea72618355e0a9d42ec694a0d64b2a81b8e92fec82339c6b1906d4257f",
+          "text_chars": 1331,
+          "title": "water-incident-desk | Created via apx",
+          "unlabelled_controls": 0,
+          "url": "https://water-incident-desk-7474647348149750.aws.databricksapps.com",
+          "viewport": "desktop"
+        },
+        {
+          "action": null,
+          "bytes": 77785,
+          "captured_at": "2026-11-17T01:19:38Z",
+          "controls": 11,
+          "kind": "screenshot",
+          "label": "initial",
+          "path": ".workshop/evidence/20261117T011935Z-deployed-desktop-initial.png",
+          "revision": {
+            "commit": "34204fe5e318c2996b2387a0eb87a1c490b87de9",
+            "dirty": "b60f222a4957cd5c"
+          },
+          "scope": "deployed",
+          "sha256": "3ef782ea72618355e0a9d42ec694a0d64b2a81b8e92fec82339c6b1906d4257f",
+          "text_chars": 1331,
+          "title": "water-incident-desk | Created via apx",
+          "unlabelled_controls": 0,
+          "url": "https://water-incident-desk-7474647348149750.aws.databricksapps.com/",
+          "viewport": "desktop"
+        },
+        {
+          "action": null,
+          "bytes": 77785,
+          "captured_at": "2026-11-17T01:21:15Z",
+          "controls": 11,
+          "kind": "screenshot",
+          "label": "initial",
+          "path": ".workshop/evidence/20261117T012111Z-deployed-desktop-initial.png",
+          "revision": {
+            "commit": "34204fe5e318c2996b2387a0eb87a1c490b87de9",
+            "dirty": "16f15484b5a053df"
+          },
+          "scope": "deployed",
+          "sha256": "3ef782ea72618355e0a9d42ec694a0d64b2a81b8e92fec82339c6b1906d4257f",
+          "text_chars": 1331,
+          "title": "water-incident-desk | Created via apx",
+          "unlabelled_controls": 0,
+          "url": "https://water-incident-desk-7474647348149750.aws.databricksapps.com",
+          "viewport": "desktop"
+        },
+        {
+          "action": null,
+          "bytes": 187882,
+          "captured_at": "2026-11-17T01:21:27Z",
+          "controls": 18,
+          "kind": "screenshot",
+          "label": "initial",
+          "path": ".workshop/evidence/20261117T012123Z-deployed-desktop-initial.png",
+          "revision": {
+            "commit": "34204fe5e318c2996b2387a0eb87a1c490b87de9",
+            "dirty": "16f15484b5a053df"
+          },
+          "scope": "deployed",
+          "sha256": "df5356cc138c4b5c1b318871f43863a05d09f45a3be46362e7d044896ea51665",
+          "text_chars": 28422,
+          "title": "water-incident-desk | Created via apx",
+          "unlabelled_controls": 0,
+          "url": "https://water-incident-desk-7474647348149750.aws.databricksapps.com/events?t=leak_alert&id=DMA-ADS-007%3A2025-07-04",
+          "viewport": "desktop"
+        },
+        {
+          "action": null,
+          "bytes": 42700,
+          "captured_at": "2026-11-17T01:31:01Z",
+          "controls": 2,
+          "kind": "screenshot",
+          "label": "initial",
+          "path": ".workshop/evidence/20261117T013058Z-local-desktop-initial.png",
+          "revision": {
+            "commit": "4a57ace901138a80244c584fe5b33a47b8061148",
+            "dirty": "8b56f8ae0555339b"
+          },
+          "scope": "local",
+          "sha256": "44595cf16b78b893224e6857266ae0e704f1ab7650250383bd9c706da6543d8f",
+          "text_chars": 409,
+          "title": "Incident & Report Desk: demo",
+          "unlabelled_controls": 0,
+          "url": "http://localhost:8101/incident-desk-demo.html#1",
+          "viewport": "desktop"
+        },
+        {
+          "action": null,
+          "bytes": 79995,
+          "captured_at": "2026-11-17T01:31:06Z",
+          "controls": 2,
+          "kind": "screenshot",
+          "label": "initial",
+          "path": ".workshop/evidence/20261117T013102Z-local-desktop-initial.png",
+          "revision": {
+            "commit": "4a57ace901138a80244c584fe5b33a47b8061148",
+            "dirty": "8b56f8ae0555339b"
+          },
+          "scope": "local",
+          "sha256": "4d2a05249340fed18288a7540c042a33d7d3db364c20b38db090f73c5f496bd8",
+          "text_chars": 748,
+          "title": "Incident & Report Desk: demo",
+          "unlabelled_controls": 0,
+          "url": "http://localhost:8101/incident-desk-demo.html#2",
+          "viewport": "desktop"
+        },
+        {
+          "action": null,
+          "bytes": 123748,
+          "captured_at": "2026-11-17T01:31:10Z",
+          "controls": 2,
+          "kind": "screenshot",
+          "label": "initial",
+          "path": ".workshop/evidence/20261117T013107Z-local-desktop-initial.png",
+          "revision": {
+            "commit": "4a57ace901138a80244c584fe5b33a47b8061148",
+            "dirty": "8b56f8ae0555339b"
+          },
+          "scope": "local",
+          "sha256": "c07f39a1602386b65ab1e8ff18c31be1c661bafb6566770f50b3f8ef3c9d3548",
+          "text_chars": 486,
+          "title": "Incident & Report Desk: demo",
+          "unlabelled_controls": 0,
+          "url": "http://localhost:8101/incident-desk-demo.html#3",
+          "viewport": "desktop"
+        },
+        {
+          "action": null,
+          "bytes": 185946,
+          "captured_at": "2026-11-17T01:31:15Z",
+          "controls": 2,
+          "kind": "screenshot",
+          "label": "initial",
+          "path": ".workshop/evidence/20261117T013112Z-local-desktop-initial.png",
+          "revision": {
+            "commit": "4a57ace901138a80244c584fe5b33a47b8061148",
+            "dirty": "8b56f8ae0555339b"
+          },
+          "scope": "local",
+          "sha256": "c77e5ba13406b714baf9ce9ded19d351b8a11f20d82844a2ce43a210bda441d8",
+          "text_chars": 444,
+          "title": "Incident & Report Desk: demo",
+          "unlabelled_controls": 0,
+          "url": "http://localhost:8101/incident-desk-demo.html#4",
+          "viewport": "desktop"
+        },
+        {
+          "action": null,
+          "bytes": 148826,
+          "captured_at": "2026-11-17T01:31:19Z",
+          "controls": 2,
+          "kind": "screenshot",
+          "label": "initial",
+          "path": ".workshop/evidence/20261117T013116Z-local-desktop-initial.png",
+          "revision": {
+            "commit": "4a57ace901138a80244c584fe5b33a47b8061148",
+            "dirty": "8b56f8ae0555339b"
+          },
+          "scope": "local",
+          "sha256": "42943596def1a2bf0f2ee05c0b36888f7ef1be51093dcd8b86c49e936ee380be",
+          "text_chars": 495,
+          "title": "Incident & Report Desk: demo",
+          "unlabelled_controls": 0,
+          "url": "http://localhost:8101/incident-desk-demo.html#5",
+          "viewport": "desktop"
+        },
+        {
+          "action": null,
+          "bytes": 70495,
+          "captured_at": "2026-11-17T01:31:24Z",
+          "controls": 2,
+          "kind": "screenshot",
+          "label": "initial",
+          "path": ".workshop/evidence/20261117T013121Z-local-desktop-initial.png",
+          "revision": {
+            "commit": "4a57ace901138a80244c584fe5b33a47b8061148",
+            "dirty": "8b56f8ae0555339b"
+          },
+          "scope": "local",
+          "sha256": "29512047ede743e39510ad4fc1981048d7b27fb909b31860a2d7ebe623608689",
+          "text_chars": 749,
+          "title": "Incident & Report Desk: demo",
+          "unlabelled_controls": 0,
+          "url": "http://localhost:8101/incident-desk-demo.html#6",
+          "viewport": "desktop"
+        },
+        {
+          "action": null,
+          "bytes": 82474,
+          "captured_at": "2026-11-17T01:31:29Z",
+          "controls": 2,
+          "kind": "screenshot",
+          "label": "initial",
+          "path": ".workshop/evidence/20261117T013125Z-local-desktop-initial.png",
+          "revision": {
+            "commit": "4a57ace901138a80244c584fe5b33a47b8061148",
+            "dirty": "8b56f8ae0555339b"
+          },
+          "scope": "local",
+          "sha256": "209cd4b2be6c43c5569857c1da01f12e3fd89fee14978e878c287d79d65b523f",
+          "text_chars": 1021,
+          "title": "Incident & Report Desk: demo",
+          "unlabelled_controls": 0,
+          "url": "http://localhost:8101/incident-desk-demo.html#7",
+          "viewport": "desktop"
+        },
+        {
+          "action": null,
+          "bytes": 85276,
+          "captured_at": "2026-11-17T01:31:33Z",
+          "controls": 2,
+          "kind": "screenshot",
+          "label": "initial",
+          "path": ".workshop/evidence/20261117T013130Z-local-desktop-initial.png",
+          "revision": {
+            "commit": "4a57ace901138a80244c584fe5b33a47b8061148",
+            "dirty": "8b56f8ae0555339b"
+          },
+          "scope": "local",
+          "sha256": "ff742f7e52b42343529e9258236d368ffa43ebee600e3034921cd89b1cdade31",
+          "text_chars": 1303,
+          "title": "Incident & Report Desk: demo",
+          "unlabelled_controls": 0,
+          "url": "http://localhost:8101/incident-desk-demo.html#8",
+          "viewport": "desktop"
+        },
+        {
+          "action": null,
+          "bytes": 79754,
+          "captured_at": "2026-11-17T01:31:37Z",
+          "controls": 2,
+          "kind": "screenshot",
+          "label": "initial",
+          "path": ".workshop/evidence/20261117T013134Z-local-desktop-initial.png",
+          "revision": {
+            "commit": "4a57ace901138a80244c584fe5b33a47b8061148",
+            "dirty": "8b56f8ae0555339b"
+          },
+          "scope": "local",
+          "sha256": "bd7fe602302696c3068b5290820c5c59ba3a0e3debdc755ca6c3356afefdf24b",
+          "text_chars": 878,
+          "title": "Incident & Report Desk: demo",
+          "unlabelled_controls": 0,
+          "url": "http://localhost:8101/incident-desk-demo.html#9",
+          "viewport": "desktop"
+        },
+        {
+          "action": null,
+          "bytes": 61706,
+          "captured_at": "2026-11-17T01:31:42Z",
+          "controls": 2,
+          "kind": "screenshot",
+          "label": "initial",
+          "path": ".workshop/evidence/20261117T013139Z-local-desktop-initial.png",
+          "revision": {
+            "commit": "4a57ace901138a80244c584fe5b33a47b8061148",
+            "dirty": "8b56f8ae0555339b"
+          },
+          "scope": "local",
+          "sha256": "24b7bb9c8242a5287371ac7670ff1c67389f86301c62cf716712da298daec5df",
+          "text_chars": 695,
+          "title": "Incident & Report Desk: demo",
+          "unlabelled_controls": 0,
+          "url": "http://localhost:8101/incident-desk-demo.html#10",
+          "viewport": "desktop"
+        },
+        {
+          "action": null,
+          "bytes": 44400,
+          "captured_at": "2026-11-17T01:32:26Z",
+          "controls": 2,
+          "kind": "screenshot",
+          "label": "initial",
+          "path": ".workshop/evidence/20261117T013223Z-local-desktop-initial.png",
+          "revision": {
+            "commit": "4a57ace901138a80244c584fe5b33a47b8061148",
+            "dirty": "8b56f8ae0555339b"
+          },
+          "scope": "local",
+          "sha256": "a656e2dabc97fdc9b8cd17f2350cbf04158f28ef56063875178a4639988e7341",
+          "text_chars": 409,
+          "title": "Incident & Report Desk: demo",
+          "unlabelled_controls": 0,
+          "url": "http://localhost:8101/incident-desk-demo.html#1",
+          "viewport": "desktop"
+        },
+        {
+          "action": null,
+          "bytes": 78536,
+          "captured_at": "2026-11-17T01:32:30Z",
+          "controls": 2,
+          "kind": "screenshot",
+          "label": "initial",
+          "path": ".workshop/evidence/20261117T013227Z-local-desktop-initial.png",
+          "revision": {
+            "commit": "4a57ace901138a80244c584fe5b33a47b8061148",
+            "dirty": "8b56f8ae0555339b"
+          },
+          "scope": "local",
+          "sha256": "31cca5d862f528521b1b74794020c3776a04818d92a8acf1c80eeaf5492afb0a",
+          "text_chars": 748,
+          "title": "Incident & Report Desk: demo",
+          "unlabelled_controls": 0,
+          "url": "http://localhost:8101/incident-desk-demo.html#2",
+          "viewport": "desktop"
+        },
+        {
+          "action": null,
+          "bytes": 70712,
+          "captured_at": "2026-11-17T01:32:35Z",
+          "controls": 2,
+          "kind": "screenshot",
+          "label": "initial",
+          "path": ".workshop/evidence/20261117T013232Z-local-desktop-initial.png",
+          "revision": {
+            "commit": "4a57ace901138a80244c584fe5b33a47b8061148",
+            "dirty": "8b56f8ae0555339b"
+          },
+          "scope": "local",
+          "sha256": "a87fd6b1bcdf23afe743656e2b2d3b8c19032766e9bd808ac08bb786d50f8527",
+          "text_chars": 749,
+          "title": "Incident & Report Desk: demo",
+          "unlabelled_controls": 0,
+          "url": "http://localhost:8101/incident-desk-demo.html#6",
+          "viewport": "desktop"
+        },
+        {
+          "action": null,
+          "bytes": 82733,
+          "captured_at": "2026-11-17T01:32:39Z",
+          "controls": 2,
+          "kind": "screenshot",
+          "label": "initial",
+          "path": ".workshop/evidence/20261117T013236Z-local-desktop-initial.png",
+          "revision": {
+            "commit": "4a57ace901138a80244c584fe5b33a47b8061148",
+            "dirty": "8b56f8ae0555339b"
+          },
+          "scope": "local",
+          "sha256": "04efc284c93e22318e4f1acb18de10b64fe1bef0c0a2cf6333dcb040ca660090",
+          "text_chars": 1021,
+          "title": "Incident & Report Desk: demo",
+          "unlabelled_controls": 0,
+          "url": "http://localhost:8101/incident-desk-demo.html#7",
+          "viewport": "desktop"
+        },
+        {
+          "action": null,
+          "bytes": 92155,
+          "captured_at": "2026-11-17T01:32:44Z",
+          "controls": 2,
+          "kind": "screenshot",
+          "label": "initial",
+          "path": ".workshop/evidence/20261117T013241Z-local-desktop-initial.png",
+          "revision": {
+            "commit": "4a57ace901138a80244c584fe5b33a47b8061148",
+            "dirty": "8b56f8ae0555339b"
+          },
+          "scope": "local",
+          "sha256": "2c5cd72a6ce42963668e994cbb0eb1e9f94e0301cea9d3f110d9e6d08172dc72",
+          "text_chars": 1303,
+          "title": "Incident & Report Desk: demo",
+          "unlabelled_controls": 0,
+          "url": "http://localhost:8101/incident-desk-demo.html#8",
+          "viewport": "desktop"
+        },
+        {
+          "action": null,
+          "bytes": 81037,
+          "captured_at": "2026-11-17T01:32:49Z",
+          "controls": 2,
+          "kind": "screenshot",
+          "label": "initial",
+          "path": ".workshop/evidence/20261117T013246Z-local-desktop-initial.png",
+          "revision": {
+            "commit": "4a57ace901138a80244c584fe5b33a47b8061148",
+            "dirty": "8b56f8ae0555339b"
+          },
+          "scope": "local",
+          "sha256": "2a95abf0156c1873434875c11ae2d49c5505133db68c6773f28f649ead37c2ea",
+          "text_chars": 878,
+          "title": "Incident & Report Desk: demo",
+          "unlabelled_controls": 0,
+          "url": "http://localhost:8101/incident-desk-demo.html#9",
+          "viewport": "desktop"
+        },
+        {
+          "action": null,
+          "bytes": 61780,
+          "captured_at": "2026-11-17T01:32:53Z",
+          "controls": 2,
+          "kind": "screenshot",
+          "label": "initial",
+          "path": ".workshop/evidence/20261117T013250Z-local-desktop-initial.png",
+          "revision": {
+            "commit": "4a57ace901138a80244c584fe5b33a47b8061148",
+            "dirty": "8b56f8ae0555339b"
+          },
+          "scope": "local",
+          "sha256": "1b9980881a54173ca024699c359dc1ea4c547f4be778e13f57dbd186877e7755",
+          "text_chars": 695,
+          "title": "Incident & Report Desk: demo",
+          "unlabelled_controls": 0,
+          "url": "http://localhost:8101/incident-desk-demo.html#10",
+          "viewport": "desktop"
+        },
+        {
+          "action": null,
+          "bytes": 132033,
+          "captured_at": "2026-11-17T01:33:47Z",
+          "controls": 2,
+          "kind": "screenshot",
+          "label": "initial",
+          "path": ".workshop/evidence/20261117T013343Z-local-desktop-initial.png",
+          "revision": {
+            "commit": "4a57ace901138a80244c584fe5b33a47b8061148",
+            "dirty": "8b56f8ae0555339b"
+          },
+          "scope": "local",
+          "sha256": "5d77768b7c39b4268a90861eaf6066d7532618dc40b08127a8c11122babaf6e5",
+          "text_chars": 486,
+          "title": "Incident & Report Desk: demo",
+          "unlabelled_controls": 0,
+          "url": "http://localhost:8101/incident-desk-demo.html#3",
+          "viewport": "desktop"
+        },
+        {
+          "action": null,
+          "bytes": 192777,
+          "captured_at": "2026-11-17T01:33:51Z",
+          "controls": 2,
+          "kind": "screenshot",
+          "label": "initial",
+          "path": ".workshop/evidence/20261117T013348Z-local-desktop-initial.png",
+          "revision": {
+            "commit": "4a57ace901138a80244c584fe5b33a47b8061148",
+            "dirty": "8b56f8ae0555339b"
+          },
+          "scope": "local",
+          "sha256": "937fe17ea27568f1383705602ddf9d4b1fe766891a3a946135bb759ffd4885ea",
+          "text_chars": 444,
+          "title": "Incident & Report Desk: demo",
+          "unlabelled_controls": 0,
+          "url": "http://localhost:8101/incident-desk-demo.html#4",
+          "viewport": "desktop"
+        },
+        {
+          "action": null,
+          "bytes": 155071,
+          "captured_at": "2026-11-17T01:33:55Z",
+          "controls": 2,
+          "kind": "screenshot",
+          "label": "initial",
+          "path": ".workshop/evidence/20261117T013352Z-local-desktop-initial.png",
+          "revision": {
+            "commit": "4a57ace901138a80244c584fe5b33a47b8061148",
+            "dirty": "8b56f8ae0555339b"
+          },
+          "scope": "local",
+          "sha256": "0f10542adadd402fe154fb023e2949597bb3774c3c818c817aee9740ba0ae30a",
+          "text_chars": 495,
+          "title": "Incident & Report Desk: demo",
+          "unlabelled_controls": 0,
+          "url": "http://localhost:8101/incident-desk-demo.html#5",
+          "viewport": "desktop"
+        },
+        {
+          "action": null,
+          "bytes": 80990,
+          "captured_at": "2026-11-17T01:34:00Z",
+          "controls": 2,
+          "kind": "screenshot",
+          "label": "initial",
+          "path": ".workshop/evidence/20261117T013357Z-local-desktop-initial.png",
+          "revision": {
+            "commit": "4a57ace901138a80244c584fe5b33a47b8061148",
+            "dirty": "8b56f8ae0555339b"
+          },
+          "scope": "local",
+          "sha256": "a6a85e0c7d860aec5ef4059ee17defb66533fa2b35d0c2144e42f1c430aceffa",
+          "text_chars": 1292,
+          "title": "Incident & Report Desk: demo",
+          "unlabelled_controls": 0,
+          "url": "http://localhost:8101/incident-desk-demo.html#8",
+          "viewport": "desktop"
+        },
+        {
+          "action": null,
+          "bytes": 80266,
+          "captured_at": "2026-11-17T01:34:04Z",
+          "controls": 2,
+          "kind": "screenshot",
+          "label": "initial",
+          "path": ".workshop/evidence/20261117T013401Z-local-desktop-initial.png",
+          "revision": {
+            "commit": "4a57ace901138a80244c584fe5b33a47b8061148",
+            "dirty": "8b56f8ae0555339b"
+          },
+          "scope": "local",
+          "sha256": "57397349eea783ed48843f169e0576eaeac62f7919eb8365eeaa15cf3d1eccb6",
+          "text_chars": 875,
+          "title": "Incident & Report Desk: demo",
+          "unlabelled_controls": 0,
+          "url": "http://localhost:8101/incident-desk-demo.html#9",
+          "viewport": "desktop"
+        },
+        {
+          "action": null,
+          "bytes": 132406,
+          "captured_at": "2026-11-17T01:34:53Z",
+          "controls": 67,
+          "kind": "screenshot",
+          "label": "initial",
+          "path": ".workshop/evidence/20261117T013442Z-deployed-desktop-initial.png",
+          "revision": {
+            "commit": "4a57ace901138a80244c584fe5b33a47b8061148",
+            "dirty": "8b56f8ae0555339b"
+          },
+          "scope": "deployed",
+          "sha256": "a77a08862c03fd866e5ecb453da11306b9bebc7e112153015d9dcc43a3a9d409",
+          "text_chars": 5637,
+          "title": "water-incident-desk | Created via apx",
+          "unlabelled_controls": 0,
+          "url": "https://water-incident-desk-7474647348149750.aws.databricksapps.com/documents?path=%2FVolumes%2Fworkshop_demo%2Fwater_utilities%2Fraw%2Fdocuments%2Fsewer_overflow_report%2Fovf_0001.pdf",
+          "viewport": "desktop"
+        },
+        {
+          "action": null,
+          "bytes": 77785,
+          "captured_at": "2026-11-17T01:36:08Z",
+          "controls": 11,
+          "kind": "screenshot",
+          "label": "initial",
+          "path": ".workshop/evidence/20261117T013603Z-deployed-desktop-initial.png",
+          "revision": {
+            "commit": "4a57ace901138a80244c584fe5b33a47b8061148",
+            "dirty": "a0c3690147fc4351"
+          },
+          "scope": "deployed",
+          "sha256": "3ef782ea72618355e0a9d42ec694a0d64b2a81b8e92fec82339c6b1906d4257f",
+          "text_chars": 1331,
+          "title": "water-incident-desk | Created via apx",
+          "unlabelled_controls": 0,
+          "url": "https://water-incident-desk-7474647348149750.aws.databricksapps.com",
+          "viewport": "desktop"
+        },
+        {
+          "action": null,
+          "bytes": 80990,
+          "captured_at": "2026-11-17T01:36:21Z",
+          "controls": 2,
+          "kind": "screenshot",
+          "label": "initial",
+          "path": ".workshop/evidence/20261117T013617Z-deployed-desktop-initial.png",
+          "revision": {
+            "commit": "4a57ace901138a80244c584fe5b33a47b8061148",
+            "dirty": "a0c3690147fc4351"
+          },
+          "scope": "deployed",
+          "sha256": "a6a85e0c7d860aec5ef4059ee17defb66533fa2b35d0c2144e42f1c430aceffa",
+          "text_chars": 1292,
+          "title": "Incident & Report Desk: demo",
+          "unlabelled_controls": 0,
+          "url": "https://water-incident-desk-7474647348149750.aws.databricksapps.com/demo.html#8",
+          "viewport": "desktop"
+        }
+      ]
+    }
+  },
+  "facts": [
+    {
+      "at": "2026-11-17T01:17:28Z",
+      "by": "attendee",
+      "text": "Goal: an agent that answers business users' questions (technicians, finance team and others) over workshop_demo.water_utilities"
+    }
+  ],
+  "history": [
+    {
+      "at": "2026-11-17T01:07:17Z",
+      "event": "evidence",
+      "kinds": [
+        "screenshot"
+      ]
+    },
+    {
+      "at": "2026-11-17T01:08:00Z",
+      "event": "evidence",
+      "kinds": [
+        "screenshot"
+      ]
+    },
+    {
+      "at": "2026-11-17T01:08:37Z",
+      "event": "evidence",
+      "kinds": [
+        "screenshot"
+      ]
+    },
+    {
+      "at": "2026-11-17T01:09:07Z",
+      "event": "evidence",
+      "kinds": [
+        "screenshot"
+      ]
+    },
+    {
+      "at": "2026-11-17T01:09:57Z",
+      "event": "evidence",
+      "kinds": [
+        "screenshot"
+      ]
+    },
+    {
+      "at": "2026-11-17T01:10:09Z",
+      "event": "evidence",
+      "kinds": [
+        "screenshot"
+      ]
+    },
+    {
+      "at": "2026-11-17T01:11:39Z",
+      "event": "evidence",
+      "kinds": [
+        "screenshot"
+      ]
+    },
+    {
+      "at": "2026-11-17T01:12:26Z",
+      "event": "evidence",
+      "kinds": [
+        "screenshot"
+      ]
+    },
+    {
+      "at": "2026-11-17T01:15:08Z",
+      "event": "evidence",
+      "kinds": [
+        "screenshot"
+      ]
+    },
+    {
+      "at": "2026-11-17T01:18:46Z",
+      "brief_revision": 7,
+      "event": "stage",
+      "evidence": {
+        "preview": "https://water-incident-desk-7474647348149750.aws.databricksapps.com"
+      },
+      "from": "understand",
+      "to": "feedback"
+    },
+    {
+      "at": "2026-11-17T01:18:55Z",
+      "event": "evidence",
+      "kinds": [
+        "screenshot"
+      ]
+    },
+    {
+      "at": "2026-11-17T01:19:34Z",
+      "brief_revision": 7,
+      "event": "stage",
+      "evidence": {
+        "preview": "https://water-incident-desk-7474647348149750.aws.databricksapps.com"
+      },
+      "from": "feedback",
+      "to": "build"
+    },
+    {
+      "at": "2026-11-17T01:19:39Z",
+      "event": "evidence",
+      "kinds": [
+        "screenshot"
+      ]
+    },
+    {
+      "at": "2026-11-17T01:21:06Z",
+      "brief_revision": 7,
+      "event": "stage",
+      "evidence": {
+        "preview": "https://water-incident-desk-7474647348149750.aws.databricksapps.com"
+      },
+      "from": "build",
+      "to": "feedback"
+    },
+    {
+      "at": "2026-11-17T01:21:15Z",
+      "event": "evidence",
+      "kinds": [
+        "screenshot"
+      ]
+    },
+    {
+      "at": "2026-11-17T01:21:27Z",
+      "event": "evidence",
+      "kinds": [
+        "screenshot"
+      ]
+    },
+    {
+      "at": "2026-11-17T01:31:01Z",
+      "event": "evidence",
+      "kinds": [
+        "screenshot"
+      ]
+    },
+    {
+      "at": "2026-11-17T01:31:06Z",
+      "event": "evidence",
+      "kinds": [
+        "screenshot"
+      ]
+    },
+    {
+      "at": "2026-11-17T01:31:11Z",
+      "event": "evidence",
+      "kinds": [
+        "screenshot"
+      ]
+    },
+    {
+      "at": "2026-11-17T01:31:15Z",
+      "event": "evidence",
+      "kinds": [
+        "screenshot"
+      ]
+    },
+    {
+      "at": "2026-11-17T01:31:19Z",
+      "event": "evidence",
+      "kinds": [
+        "screenshot"
+      ]
+    },
+    {
+      "at": "2026-11-17T01:31:24Z",
+      "event": "evidence",
+      "kinds": [
+        "screenshot"
+      ]
+    },
+    {
+      "at": "2026-11-17T01:31:29Z",
+      "event": "evidence",
+      "kinds": [
+        "screenshot"
+      ]
+    },
+    {
+      "at": "2026-11-17T01:31:33Z",
+      "event": "evidence",
+      "kinds": [
+        "screenshot"
+      ]
+    },
+    {
+      "at": "2026-11-17T01:31:37Z",
+      "event": "evidence",
+      "kinds": [
+        "screenshot"
+      ]
+    },
+    {
+      "at": "2026-11-17T01:31:42Z",
+      "event": "evidence",
+      "kinds": [
+        "screenshot"
+      ]
+    },
+    {
+      "at": "2026-11-17T01:32:26Z",
+      "event": "evidence",
+      "kinds": [
+        "screenshot"
+      ]
+    },
+    {
+      "at": "2026-11-17T01:32:30Z",
+      "event": "evidence",
+      "kinds": [
+        "screenshot"
+      ]
+    },
+    {
+      "at": "2026-11-17T01:32:35Z",
+      "event": "evidence",
+      "kinds": [
+        "screenshot"
+      ]
+    },
+    {
+      "at": "2026-11-17T01:32:39Z",
+      "event": "evidence",
+      "kinds": [
+        "screenshot"
+      ]
+    },
+    {
+      "at": "2026-11-17T01:32:44Z",
+      "event": "evidence",
+      "kinds": [
+        "screenshot"
+      ]
+    },
+    {
+      "at": "2026-11-17T01:32:49Z",
+      "event": "evidence",
+      "kinds": [
+        "screenshot"
+      ]
+    },
+    {
+      "at": "2026-11-17T01:32:53Z",
+      "event": "evidence",
+      "kinds": [
+        "screenshot"
+      ]
+    },
+    {
+      "at": "2026-11-17T01:33:47Z",
+      "event": "evidence",
+      "kinds": [
+        "screenshot"
+      ]
+    },
+    {
+      "at": "2026-11-17T01:33:51Z",
+      "event": "evidence",
+      "kinds": [
+        "screenshot"
+      ]
+    },
+    {
+      "at": "2026-11-17T01:33:56Z",
+      "event": "evidence",
+      "kinds": [
+        "screenshot"
+      ]
+    },
+    {
+      "at": "2026-11-17T01:34:00Z",
+      "event": "evidence",
+      "kinds": [
+        "screenshot"
+      ]
+    },
+    {
+      "at": "2026-11-17T01:34:04Z",
+      "event": "evidence",
+      "kinds": [
+        "screenshot"
+      ]
+    },
+    {
+      "at": "2026-11-17T01:34:53Z",
+      "event": "evidence",
+      "kinds": [
+        "screenshot"
+      ]
+    },
+    {
+      "at": "2026-11-17T01:36:08Z",
+      "event": "evidence",
+      "kinds": [
+        "screenshot"
+      ]
+    },
+    {
+      "at": "2026-11-17T01:36:21Z",
+      "event": "evidence",
+      "kinds": [
+        "screenshot"
+      ]
+    }
+  ],
+  "outcome": null,
+  "path": {
+    "at": "2026-11-17T01:24:53Z",
+    "chosen_by": "attendee",
+    "source": null,
+    "value": "rapid"
+  },
+  "phase": "feedback",
+  "project": "water-incident-desk",
+  "questions": [],
+  "requests": [],
+  "revision": 53,
+  "schema": "workshop-design-workflow",
+  "success_criteria": [],
+  "version": 1,
+  "workflow_version": 2
+}

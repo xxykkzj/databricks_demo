@@ -1,0 +1,20 @@
+{
+  "id": "cc41ddf7-64d5-4698-bdfe-78f80eb9591c",
+  "pipeline_type": "WORKSPACE",
+  "name": "water_utilities_medallion",
+  "libraries": [
+    {
+      "glob": {
+        "include": "/Users/labuser+106@awsbricks.com/water_utilities_medallion_840b3fd7/transformations/**"
+      }
+    }
+  ],
+  "schema": "default",
+  "continuous": false,
+  "development": false,
+  "photon": true,
+  "channel": "CURRENT",
+  "catalog": "adllabs_096",
+  "serverless": true,
+  "root_path": "/Users/labuser+106@awsbricks.com/water_utilities_medallion_840b3fd7"
+}

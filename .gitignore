@@ -1,0 +1,10 @@
+__pycache__/
+*.py[oc]
+.venv
+node_modules/
+.env
+.env.*
+.databricks
+.build/
+.apx/
+.DS_Store
