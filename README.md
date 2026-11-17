@@ -15,3 +15,4 @@ Source for a water-utility analytics demo built on synthetic data (Torrens Gulf 
 * These are snapshots copied on 2026-11-17. The live assets still run from their original workspace locations and still read `workshop_demo.water_utilities`.
 * The six Genie reports (GENIE_DOCUMENT) cannot be exported via API and are not included.
 * Data is fully synthetic.
+* Workspace Git folder: `/Users/labuser+106@awsbricks.com/databricks_demo`.
